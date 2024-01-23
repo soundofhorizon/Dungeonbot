@@ -66,5 +66,5 @@ class MessageEditDelete(commands.Cog):
         await ch.send(embed=embed)
 
 
-async def setup(bot):
-    await bot.add_cog(MessageEditDelete(bot))
+def setup(bot):
+    bot.add_cog(MessageEditDelete(bot))
