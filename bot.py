@@ -12,7 +12,6 @@ import discord
 import requests
 from discord import Embed
 from discord.ext import commands
-from server import keep_alive
 
 
 class DUNGEON_BOT(commands.Bot):
@@ -267,7 +266,5 @@ class DUNGEON_BOT(commands.Bot):
 
 
 if __name__ == '__main__':
-    # ウェブサーバーを起動する
-    keep_alive()
     bot = DUNGEON_BOT(prefix="!")
     bot.run("ODI2MTAwOTg5MjM2NDc3OTgy.GSpnTS.5Oc66TGGTah1UwRG20ebXSGVEZ8e8qi3LcNyL4")
