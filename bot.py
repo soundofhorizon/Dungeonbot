@@ -270,4 +270,4 @@ if __name__ == '__main__':
     # ウェブサーバーを起動する
     keep_alive()
     bot = DUNGEON_BOT(prefix="!")
-    bot.run(os.environ['TOKEN'])
+    bot.run("ODI2MTAwOTg5MjM2NDc3OTgy.GSpnTS.5Oc66TGGTah1UwRG20ebXSGVEZ8e8qi3LcNyL4")
