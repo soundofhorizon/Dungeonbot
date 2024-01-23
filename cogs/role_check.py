@@ -375,5 +375,5 @@ class ROLE_CHECK(commands.Cog):
             embed=self.bot.edit_embed(show_embed, "Checking Finish!", f"{show_text}"))
 
 
-async def setup(bot):
-    await bot.add_cog(ROLE_CHECK(bot))
+def setup(bot):
+    bot.add_cog(ROLE_CHECK(bot))

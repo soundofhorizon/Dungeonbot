@@ -17,5 +17,5 @@ class MemberJoin(commands.Cog):
             await member.add_roles(role)
 
 
-async def setup(bot):
-    await bot.add_cog(MemberJoin(bot))
+def setup(bot):
+    bot.add_cog(MemberJoin(bot))

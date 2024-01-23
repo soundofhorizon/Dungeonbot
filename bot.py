@@ -1,4 +1,5 @@
 # coding=utf-8
+import asyncio
 import json
 import os
 import random
@@ -21,12 +22,19 @@ class DUNGEON_BOT(commands.Bot):
         super().__init__(command_prefix=prefix, help_command=None, intents=intents)
 
     async def load_cogs(self):
-        for cog in os.listdir(f"./cogs"):
-            if cog.endswith(".py"):
-                try:
-                    await self.load_extension(f"cogs.{cog[:-3]}")
-                except Exception:
-                    traceback.print_exc()
+        loop = self.loop
+
+        def load_cog(cog):
+            try:
+                self.load_extension(f"cogs.{cog[:-3]}")
+            except Exception:
+                traceback.print_exc()
+
+        # os.listdirは同期関数なので、loop.run_in_executorを使用して非同期的に処理
+        files = await loop.run_in_executor(None, os.listdir, "./cogs")
+
+        # 各Cogを非同期的に読み込む
+        await asyncio.gather(*[loop.run_in_executor(None, load_cog, cog) for cog in files if cog.endswith(".py")])
 
     async def on_ready(self):
         color = [0x126132, 0x82fc74, 0xfea283, 0x009497, 0x08fad4, 0x6ed843, 0x8005c0]

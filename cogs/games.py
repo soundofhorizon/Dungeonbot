@@ -475,5 +475,5 @@ class Games(commands.Cog):
             await ctx.channel.send("引数に参加人数が必要です！ Command usage:``!oe 参加人数　ex:!oe 4``")
 
 
-async def setup(bot):
-    await bot.add_cog(Games(bot))
+def setup(bot):
+    bot.add_cog(Games(bot))

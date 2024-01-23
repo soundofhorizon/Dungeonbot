@@ -91,5 +91,5 @@ class SimpleCommands(commands.Cog):
         await self.bot.close()
 
 
-async def setup(bot):
-    await bot.add_cog(SimpleCommands(bot))
+def setup(bot):
+    bot.add_cog(SimpleCommands(bot))

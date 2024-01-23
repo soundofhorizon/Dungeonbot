@@ -259,5 +259,5 @@ class AdminOnly(commands.Cog):
     async def test(self, ctx):
         await ctx.send("1 2023/08/20T16:15:00")
 
-async def setup(bot):
-    await bot.add_cog(AdminOnly(bot))
+def setup(bot):
+    bot.add_cog(AdminOnly(bot))

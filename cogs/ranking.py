@@ -611,5 +611,5 @@ class Ranking(commands.Cog):
             await ch.send(embed=embed)
 
 
-async def setup(bot):
-    await bot.add_cog(Ranking(bot))
+def setup(bot):
+    bot.add_cog(Ranking(bot))
