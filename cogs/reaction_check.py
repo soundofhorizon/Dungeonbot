@@ -16,6 +16,7 @@ class PCommandView(View):
         pyperclip.copy(p_cmd)
         await interaction.response.send_message("Copy to Clipboard!", ephemeral=True)
 
+
 class ReactionNotifyCog(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
@@ -60,7 +61,7 @@ class ReactionNotifyCog(commands.Cog):
             for reactor in reactors:
                 nickname = reactor.nick if reactor.nick else reactor.name
                 notification += f"\n{nickname}さん"
-                for i,j in uuid_list:
+                for i, j in uuid_list:
                     if j == reactor.id:
                         mcid_list.append(i[1:])
 

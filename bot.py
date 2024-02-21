@@ -26,7 +26,9 @@ class DUNGEON_BOT(commands.Bot):
 
         def load_cog(cog):
             try:
-                self.load_extension(f"cogs.{cog[:-3]}")
+                # 拡張子を取り除くときに余分なドットも取り除く
+                cog_name = cog[:-3].replace(".", "")
+                self.load_extension(f"cogs.{cog_name}")
             except Exception:
                 traceback.print_exc()
 
