@@ -1,5 +1,4 @@
 import discord
-import pyperclip
 from discord.ext import commands
 from discord.ui import View
 
@@ -13,8 +12,7 @@ class PCommandView(View):
     @discord.ui.button(label="copy p command")
     async def getPCmdButton(self, button: discord.Button, interaction: discord.Interaction):
         p_cmd = self.text
-        pyperclip.copy(p_cmd)
-        await interaction.response.send_message("Copy to Clipboard!", ephemeral=True)
+        await interaction.response.send_message(f"このコマンドで一斉に呼ぶことができます。\n{p_cmd}", ephemeral=True)
 
 
 class ReactionNotifyCog(commands.Cog):
