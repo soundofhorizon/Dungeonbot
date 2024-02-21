@@ -9,10 +9,10 @@ class PCommandView(View):
         super().__init__()
         self.text = text
 
-    @discord.ui.button(label="copy p command")
+    @discord.ui.button(label="show party command")
     async def getPCmdButton(self, button: discord.Button, interaction: discord.Interaction):
         p_cmd = self.text
-        await interaction.response.send_message(f"このコマンドで一斉に呼ぶことができます。\n{p_cmd}", ephemeral=True)
+        await interaction.response.send_message(f"このコマンドで一斉に呼ぶことができます。\n```{p_cmd}```", ephemeral=True)
 
 
 class ReactionNotifyCog(commands.Cog):
