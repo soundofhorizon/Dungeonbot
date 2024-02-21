@@ -1,6 +1,20 @@
 import discord
+import pyperclip
 from discord.ext import commands
+from discord.ui import View
 
+
+class PCommandView(View):
+
+    def __init__(self, text: str):
+        super().__init__()
+        self.text = text
+
+    @discord.ui.button(label="copy p command")
+    async def getPCmdButton(self, button: discord.Button, interaction: discord.Interaction):
+        p_cmd = self.text
+        pyperclip.copy(p_cmd)
+        await interaction.response.send_message("Copy to Clipboard!", ephemeral=True)
 
 class ReactionNotifyCog(commands.Cog):
     def __init__(self, bot):
@@ -15,12 +29,21 @@ class ReactionNotifyCog(commands.Cog):
             self.threshold = 4
         elif payload.channel_id == 1040544205933654047:
             self.threshold = 3
+        elif payload.channel_id == 772438848444694529:
+            self.threshold = 2
         else:
             return
-        message = await channel.fetch_message(payload.message_id)
+
+        # 一番下のメッセージを取得
+        message = await channel.history(limit=1).flatten()
+        if message:
+            message = message[0]
+        else:
+            return
 
         # リアクションをつけたメンバーの情報を取得
         reactors = []
+
         for reaction in message.reactions:
             async for user in reaction.users():
                 member = message.guild.get_member(user.id)
@@ -31,12 +54,24 @@ class ReactionNotifyCog(commands.Cog):
 
         if len(reactors) == self.threshold:
             # メンションして通知
+            mcid_list = []
+            uuid_list = await self.bot.db_select("player_data")
+            uuid_list = [[str(item[0]), int(item[1])] for item in uuid_list]
+
             notification = f"{message.author.mention} - リアクションが{self.threshold}個つきました！\nメンバー"
             for reactor in reactors:
                 nickname = reactor.nick if reactor.nick else reactor.name
                 notification += f"\n{nickname}さん"
+                for i,j in uuid_list:
+                    if j == reactor.id:
+                        mcid_list.append(i[1:])
 
-            await channel.send(notification)
+            clipboard_text = "/p "
+            for i in mcid_list:
+                clipboard_text += f"{self.bot.uuid_to_mcid(i)} "
+
+            p_cmd_view = PCommandView(clipboard_text[:-1])
+            await channel.send(notification, view=p_cmd_view)
 
 
 def setup(bot):
