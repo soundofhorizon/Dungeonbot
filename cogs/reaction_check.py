@@ -29,8 +29,6 @@ class ReactionNotifyCog(commands.Cog):
             self.threshold = 4
         elif payload.channel_id == 1040544205933654047:
             self.threshold = 3
-        elif payload.channel_id == 772438848444694529:
-            self.threshold = 2
         else:
             return
 
