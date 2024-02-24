@@ -1,3 +1,4 @@
+import random
 import re
 import traceback
 from datetime import datetime
@@ -17,8 +18,19 @@ class Message(commands.Cog):
         if message.author.bot:
             return
         try:
+            # Secret Role
+            check = random.randint(1, 1000000)
+            if check == 1000000:
+                role = message.guild.get_role(1192898828764971149)
+                await message.author.add_roles(role)
+                msg = await message.channel.send(
+                    f"@everyone\nおめでとう！{message.author.display_name}は、0.0001%の壁を乗り越え、{role.mention} を入手した\n！(条件開放: メッセージ送信毎抽選、1/1000000で当選する)")
+                await msg.pin()
+
             # 引用機能
-            url_filter = [msg.split("/")[1:] for msg in re.split("https://(ptb.|canary.|)discord(app|).com/channels/730269755432239116((/[0-9]+){2})", message.content)
+            url_filter = [msg.split("/")[1:] for msg in
+                          re.split("https://(ptb.|canary.|)discord(app|).com/channels/730269755432239116((/[0-9]+){2})",
+                                   message.content)
                           if re.match("(/[0-9]+){2}", msg)]
             if len(url_filter) >= 1:
                 for url in url_filter:

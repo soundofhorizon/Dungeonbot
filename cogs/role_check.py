@@ -264,6 +264,14 @@ class ROLE_CHECK(commands.Cog):
                         discord.utils.get(guild.roles, id=1191380319862018048))
                     role_ids.append(1191380319862018048)
 
+            # Secret Role
+            rift_data = jsonData["profiles"][j]["members"][uuid].get("rift", {}).get("west_village", {}).get("kat_house", {})
+
+            if rift_data and all(rift_data.get(f"bin_collected_{creature}", 0) >= 100 for creature in ["silverfish", "spider", "mosquito"]):
+                if len(set(rift_data[f"bin_collected_{creature}"] for creature in ["silverfish", "spider", "mosquito"])) == 1 \
+                    and not 1191383168264196146 in map(func, guild.get_member(ctx.author.id).roles):
+                    await guild.get_member(ctx.author.id).add_roles(discord.utils.get(guild.roles, id=1191383168264196146))
+                    role_ids.append(1191383168264196146)
             # dungeons
             if "dungeons" in jsonData["profiles"][j]["members"][uuid]:
                 # Classes
@@ -373,6 +381,25 @@ class ROLE_CHECK(commands.Cog):
 
         await show_embed.edit(
             embed=self.bot.edit_embed(show_embed, "Checking Finish!", f"{show_text}"))
+
+    @commands.command()
+    async def how_did_you_find_this_command(self, ctx):
+        # 指定されたロールIDを取得
+        role = ctx.guild.get_role(1211000756635959319)
+
+        # サーバー全体のメンバーを取得
+        members = ctx.guild.members
+
+        # ロールを持っているかどうかを全メンバーに確認
+        role_exists = any(role in member.roles for member in members)
+
+        if role_exists:
+            await ctx.send(f"既に `{role.name}` ロールは攻略されました。")
+        else:
+            # ロールを持っていない場合、コマンドを実行したメンバーにロールを付与
+            await ctx.author.add_roles(role)
+            msg = await ctx.send(f"@everyone\nおめでとう！{ctx.author.display_name}は、暗号を解読し、{role.mention} を入手した！")
+            await msg.pin()
 
 
 def setup(bot):
