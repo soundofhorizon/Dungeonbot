@@ -68,7 +68,7 @@ class ReactionNotifyCog(commands.Cog):
                 clipboard_text += f"{self.bot.uuid_to_mcid(i)} "
 
             p_cmd_view = PCommandView(clipboard_text[:-1])
-            notification += f"\n``{clipboard_text[:-1]}``"
+            notification += f"\n```{clipboard_text[:-1]}```"
             await channel.send(notification, view=p_cmd_view)
 
 
