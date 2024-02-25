@@ -405,7 +405,7 @@ class ROLE_CHECK(commands.Cog):
             await ctx.author.add_roles(role)
             msg = await ctx.send(f"@everyone\nおめでとう！{ctx.author.display_name}は、暗号を解読し、{role.mention} を入手した！")
             await msg.pin()
-            await ctx.send("条件開放: HintをGzip→base64で解凍した後(https://gyazo.com/0a42a5a6680ab42f48d8b4e1fe77012c)、出てきた画像をRGB配列(000~255の形式)に直す。\n"
+            await ctx.send("条件開放: HintをGzip→base64で解凍した後出てくる[画像リンク](https://gyazo.com/0a42a5a6680ab42f48d8b4e1fe77012c)上の画像をRGB配列(000~255の形式)に直す。\n"
                            "記載を分割すると100は_, 103は0, 104は1, 110は2, 111は3…と数字が並ぶ。このまま並べると、122が9となり、123がa、124がb...そして並べていくと242がzとなる。\n"
                            "そして243を!として【! is End】なので、左上からRGBの配列で解析をかけると、【how_did_you_find_this_command!……】と出てくる。これを打つと開放。\n"
                            "なお、このロールはuniqueであり最初の攻略者以外は取得できない。")
