@@ -265,6 +265,7 @@ class ROLE_CHECK(commands.Cog):
                     role_ids.append(1191380319862018048)
 
             # Secret Role
+            secret_role_frag = False
             rift_data = jsonData["profiles"][j]["members"][uuid].get("rift", {}).get("west_village", {}).get("kat_house", {})
 
             if rift_data and all(rift_data.get(f"bin_collected_{creature}", 0) >= 100 for creature in ["silverfish", "spider", "mosquito"]):
@@ -272,6 +273,8 @@ class ROLE_CHECK(commands.Cog):
                     and not 1191383168264196146 in map(func, guild.get_member(ctx.author.id).roles):
                     await guild.get_member(ctx.author.id).add_roles(discord.utils.get(guild.roles, id=1191383168264196146))
                     role_ids.append(1191383168264196146)
+                    secret_role_frag = True
+
             # dungeons
             if "dungeons" in jsonData["profiles"][j]["members"][uuid]:
                 # Classes
@@ -381,6 +384,8 @@ class ROLE_CHECK(commands.Cog):
 
         await show_embed.edit(
             embed=self.bot.edit_embed(show_embed, "Checking Finish!", f"{show_text}"))
+        if secret_role_frag:
+            await ctx.send("条件開放: Rift Katにおいて、各種害虫を100匹以上捕まえたうえで、同数捕獲する。(交換した場合も、総数でカウントする。)")
 
     @commands.command()
     async def how_did_you_find_this_command(self, ctx):
@@ -400,6 +405,11 @@ class ROLE_CHECK(commands.Cog):
             await ctx.author.add_roles(role)
             msg = await ctx.send(f"@everyone\nおめでとう！{ctx.author.display_name}は、暗号を解読し、{role.mention} を入手した！")
             await msg.pin()
+            await ctx.send("条件開放: HintをGzip→base64で解凍した後(https://gyazo.com/0a42a5a6680ab42f48d8b4e1fe77012c)、出てきた画像をRGB配列(000~255の形式)に直す。\n"
+                           "記載を分割すると100は_, 103は0, 104は1, 110は2, 111は3…と数字が並ぶ。このまま並べると、122が9となり、123がa、124がb...そして並べていくと242がzとなる。\n"
+                           "そして243を!として【! is End】なので、左上からRGBの配列で解析をかけると、【how_did_you_find_this_command!……】と出てくる。これを打つと開放。\n"
+                           "なお、このロールはuniqueであり最初の攻略者以外は取得できない。")
+
 
 
 def setup(bot):
