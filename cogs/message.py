@@ -20,7 +20,9 @@ class Message(commands.Cog):
         try:
             # Secret Role
             check = random.randint(1, 1000000)
-            if check == 1000000:
+            if 999900 <= check <= 999999:
+                await message.guild.get_channel(1214065130988503112).send(f"{check} : {message.author.display_name}")
+            elif check == 1000000:
                 role = message.guild.get_role(1192898828764971149)
                 await message.author.add_roles(role)
                 msg = await message.channel.send(
