@@ -19,14 +19,14 @@ class Message(commands.Cog):
             return
         try:
             # Secret Role
-            check = random.randint(1, 1000000)
+            check = 1000000
             if 999900 <= check <= 999999:
                 await message.guild.get_channel(1214065130988503112).send(f"{check} : {message.author.display_name}")
             elif check == 1000000:
                 role = message.guild.get_role(1192898828764971149)
                 await message.author.add_roles(role)
                 msg = await message.channel.send(
-                    f"@everyone\nおめでとう！{message.author.display_name}は、0.0001%の壁を乗り越え、{role.mention} を入手した\n！(条件開放: メッセージ送信毎抽選、1/1000000で当選する)")
+                    f"@everyone\nおめでとう！{message.author.display_name}は、0.0001%の壁を乗り越え、{role.mention} を入手した！\n(条件開放: メッセージ送信毎抽選、1/1000000で当選する)")
                 await msg.pin()
 
             # 引用機能
