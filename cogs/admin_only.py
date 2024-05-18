@@ -3,7 +3,6 @@ import datetime
 import re
 
 import discord
-from discord import Embed, Message
 from discord.ext import commands
 
 """Adminのみ使えるコマンド群"""
@@ -110,38 +109,6 @@ class AdminOnly(commands.Cog):
                 await ctx.send("空白は一つだけ有効です。(Roleをメンションで挿入した際に空白を更に一つ開けていませんか？)")
 
     @commands.command()
-    async def ar(self, ctx, add_role: discord.Role, member_id):
-        if member_id == "a":
-            cur.execute("select * from player_data")
-            player_data = cur.fetchall()  # player_data : [1] discordid, [0] uuid
-            for i in player_data:
-                discord_id = i[1]
-                await self.bot.get_guild(730269755432239116).get_member(int(discord_id)).add_roles(add_role)
-            embed = discord.Embed(
-                description=f"{ctx.author.display_name}により、\n"
-                            f"全てのメンバーに\n"
-                            f"{add_role}を付与しました。",
-                color=0x006400)
-            await ctx.send(embed=embed)
-        else:
-            try:
-                member = discord.utils.get(ctx.guild.members, id=int(member_id))
-                if not discord.utils.get(member.roles, id=add_role.id):
-                    await member.add_roles(add_role)
-                    embed = discord.Embed(
-                        description=f"{ctx.author.display_name}により、\n"
-                                    f"{member.display_name}に\n"
-                                    f"{add_role.name}を付与しました。",
-                        color=0x006400)
-                    await ctx.send(embed=embed)
-                else:
-                    await ctx.send(f"{member.display_name}は{add_role.name}を既に所持しています。。")
-            except ValueError:
-                await ctx.send("引数が不正です。リファレンスを読み直してください。")
-            except discord.errors.HTTPException:
-                await ctx.send("空白は一つだけ有効です。(Roleをメンションで挿入した際に空白を更に一つ開けていませんか？)")
-
-    @commands.command()
     async def cr(self, ctx, hex_num: str, create_role_name: str):
 
         def html2rgb(color_code):
@@ -190,65 +157,6 @@ class AdminOnly(commands.Cog):
         await asyncio.sleep(0.5)
         await delete_role.delete()
         await ctx.send(embed=embed)
-
-    @commands.command(aliases=["es"])
-    async def execute_sql(self, ctx, *content: str):
-        cur.execute(" ".join(content))
-        if not content[0].lower().startswith("select"):
-            await ctx.send(f'SQL文`{content}`は正常に実行されました')
-            db.commit()
-            return
-
-        data = cur.fetchall()
-
-        result = "\n".join("、".join(str(d) for d in row) for row in data)
-        print(result)
-        print(data)
-
-        if len(result) <= 2000:
-            embed = Embed(title="SQL文の実行結果", description=result)
-            await ctx.send(embed=embed)
-        else:
-            result_list = result.splitlines()
-            pages = [result_list[i:i+10] for i in range(0, len(result_list), 10)]
-            page_count = len(pages)
-            page = 0
-
-            embed = Embed(title=f"SQL文の実行結果({page * 10 + 1}-{min(len(result_list), page * 10 + 10)}件目)",
-                          description="\n".join(pages[page]))
-            msg: Message = await ctx.send(embed=embed)
-            await msg.add_reaction("\U000025c0\U0000fe0f")
-            await msg.add_reaction("\U000025b6\U0000fe0f")
-
-            def check(reaction, user):
-                return user == ctx.author and str(reaction.emoji) in ["\U000025c0\U0000fe0f", "\U000025b6\U0000fe0f"]
-
-            while True:
-                try:
-                    reaction, user = await self.bot.wait_for("reaction_add", check=check, timeout=300)
-                except asyncio.TimeoutError:
-                    await msg.clear_reactions()
-                    break
-                else:
-                    if str(reaction.emoji) == "\U000025c0\U0000fe0f":
-                        if page > 0:
-                            page -= 1
-                    elif str(reaction.emoji) == "\U000025b6\U0000fe0f":
-                        if page < page_count - 1:
-                            page += 1
-
-                    start = page * 10
-                    embed = Embed(
-                        title=f"SQL文の実行結果({start+1}-{min(len(result_list), start+10)}件目)",
-                        description="\n".join(pages[page])
-                    )
-                    await msg.edit(embed=embed)
-                    await reaction.remove(user)  # リアクションを消す
-
-    @execute_sql.error
-    async def sql_error(self, ctx, error):
-        await ctx.send("SQL文が違うだろう！！？？")
-        db.commit()
 
     @commands.command()
     async def restart(self, ctx):
