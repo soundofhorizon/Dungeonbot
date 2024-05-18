@@ -13,6 +13,8 @@ class CustomException(Exception):
 def colon_formatted_number(number: int) -> str:
     return "{:,}".format(number)
 
+# player_data 0:discord_id 1: 攻撃回数 2: str 3: money 4: last boss hp 5: weak boss hp
+#             6: weak boss status(0 normal 1 str debuff 2 money debuff 3 rare boss)) 7: mana
 
 class Mmorpg(commands.Cog):
     def __init__(self, bot: commands.Bot):
@@ -45,7 +47,7 @@ class Mmorpg(commands.Cog):
                 await message.remove_reaction(reaction.emoji, self.bot.user)
 
     @commands.command()
-    async def mr(self, ctx: commands.Context):
+    async def wr(self, ctx: commands.Context):
         try:
             mmo_data = await self.bot.db_select("mmorpg")
 
@@ -105,7 +107,7 @@ class Mmorpg(commands.Cog):
         i, j, k, l, m, n, o, p = player_data
         weak_boss_name = ["子分", "魔法使い", "スリの銀次", "メタル子分"]
         description = (
-            f"貴方はラスボスの子分の{weak_boss_name[o]}に遭遇した。{weak_boss_name[o]}のHPは残り{colon_formatted_number(n)}。\n"
+            f"貴方は{weak_boss_name[o]}に遭遇した。{weak_boss_name[o]}のHPは残り{colon_formatted_number(n)}。\n"
             "攻撃を行うなら:regional_indicator_a: と入力せよ。"
         )
         await self.safe_edit_embed(show_embed, "子分Phase", description)
@@ -120,40 +122,100 @@ class Mmorpg(commands.Cog):
     async def process_attack(self, ctx: commands.Context, show_embed: discord.Message, player_data: List[Any], is_boss: bool):
         i, j, k, l, m, n, o, p = player_data
         multiplied_dmg = random.randint(0, 20)
-        multiplied_money = random.random() / random.randint(1, 8)
-        multiAttack_frag = random.randint(0, 1)
-        damage = k * multiplied_dmg if multiAttack_frag == 0 else k
+        multiplied_money = random.random() * random.randint(1, 8)
+        multiAttack_frag = random.randint(0, 10)
+        damage = k * multiplied_dmg if multiAttack_frag == 0 else int(k * random.random() * random.randint(1,2))
         coins = k * multiplied_dmg * multiplied_money if multiAttack_frag == 0 else k * multiplied_money
 
         if is_boss:
             remaining_hp = m - damage
             enemy_name = "ラスボス"
             hp_label = "ラスボスの残りHP"
-            boss_defeated_msg = (
-                f"<@!{ctx.author.id}> さんがラスボスを打倒しました！おめでとうございます！:tada:\n\n"
-                "次回は強くてラスボスも強いニューゲーム！\n ラスボスHPは 6000000000000000, strは20から開始です。頑張ってね！"
-            )
         else:
             remaining_hp = n - damage
             enemy_name = ["子分", "魔法使い", "スリの銀次", "メタル子分"][o]
             hp_label = f"{enemy_name}の残りHP"
-            boss_defeated_msg = (
-                f"{enemy_name}が殲滅された！ボーナスコイン{colon_formatted_number(int(coins))}coins獲得！\n\n"
-                "ラスボス < まだまだ…私には遠い… 子分はまだまだいるからな…"
+
+        if multiAttack_frag == 0:
+            await self.safe_edit_embed(
+                show_embed, "攻撃！", f"**Critical Hit!**\n{ctx.author.display_name}の攻撃！\n{colon_formatted_number(damage)}のダメージ！\n\n{hp_label}: {colon_formatted_number(remaining_hp)}\n獲得coins: {colon_formatted_number(int(coins))}"
+            )
+        else:
+            await self.safe_edit_embed(
+                show_embed, "攻撃！", f"{ctx.author.display_name}の攻撃！\n{colon_formatted_number(damage)}のダメージ！\n\n{hp_label}: {colon_formatted_number(remaining_hp)}\n獲得coins: {colon_formatted_number(int(coins))}"
             )
 
-        await self.safe_edit_embed(
-            show_embed, "攻撃！", f"{ctx.author.display_name}の攻撃！\n{colon_formatted_number(damage)}のダメージ！\n\n{hp_label}: {colon_formatted_number(remaining_hp)}\n獲得coins: {colon_formatted_number(int(coins))}"
-        )
-
         if remaining_hp <= 0:
-            await ctx.send(boss_defeated_msg)
             if is_boss:
+                boss_defeated_msg = (
+                    f"<@!{ctx.author.id}> さんがラスボスを打倒しました！おめでとうございます！:tada:\n\n"
+                    "次回は強くてラスボスも強いニューゲーム！\n ラスボスHPは 6000000000000000, strは20から開始です。頑張ってね！"
+                )
+                await ctx.send(boss_defeated_msg)
                 player_data[1:] = [0, 20, 0, 6000000000000000, 1000, 0, 0]
             else:
-                # Logic for handling minion battle victory
-                pass
+                if o == 3:
+                    bonus = damage * random.randint(100, 800)
+                else:
+                    bonus = damage * random.randint(3, 8)
+                boss_defeated_msg = (
+                    f"{enemy_name}が殲滅された！ボーナスコイン{colon_formatted_number(int(bonus))}coins獲得！\n\n"
+                    "ラスボス < まだまだ…私には遠い… 子分はまだまだいるからな…"
+                )
+                await ctx.send(boss_defeated_msg)
+                nexthp = k * random.randint(50, 830)
+                next_weakboss = random.randint(0, 100)
+                if next_weakboss <= 50:
+                    o = 0
+                elif 50 < next_weakboss <= 72:
+                    o = 1
+                elif 72 < next_weakboss <= 95:
+                    o = 2
+                else:
+                    o = 3
+                player_data[1:7] = [j + 1, k, l + int(bonus), m, nexthp, o]
         else:
+            if not is_boss and enemy_name != "子分":
+                action_chance = random.random()
+                if action_chance <= 0.2:
+                    await self.safe_edit_embed(
+                        show_embed, "警戒！", f"{enemy_name}が何かしてくる…！"
+                    )
+                    await asyncio.sleep(2)
+                    if enemy_name == "スリの銀次":
+                        player_data[4] = 0  # コインを全てもっていく
+                        await self.safe_edit_embed(
+                            show_embed, "(;´･ω･)", f"スリの銀次がコインを全てもっていった！"
+                        )
+                    elif enemy_name == "魔法使い":
+                        reduction_percentage = random.uniform(0.05, 0.15)
+                        reduced_str = int(k * reduction_percentage)
+                        player_data[2] = max(1, k - reduced_str)  # strを減らす
+                        await self.safe_edit_embed(
+                            show_embed, "(;´･ω･)", f"魔法使いがSTRを{int(reduction_percentage * 100)}%減らした！"
+                        )
+                    elif enemy_name == "メタル子分":
+                        escape_chance = random.random()
+                        if escape_chance <= 0.1:
+                            player_data[2] = int(k * 0.5)  # strを50%持っていく
+                            player_data[4] = int(m * 0.5)  # コインを50%持っていく
+                            player_data[5] = int(n * 0.5)  # manaを50%持っていく
+                            nexthp = k * random.randint(50, 830)
+                            next_weakboss = random.randint(0, 100)
+                            if next_weakboss <= 50:
+                                o = 0
+                            elif 50 < next_weakboss <= 72:
+                                o = 1
+                            elif 72 < next_weakboss <= 95:
+                                o = 2
+                            else:
+                                o = 3
+                            player_data[1:7] = [j + 1, k, l + int(coins), m, nexthp, o]
+                            await self.safe_edit_embed(
+                                show_embed, "逃走！", f"メタル子分が逃げた！コインとstrを半分持っていかれた…！\n\n代わりの子分が現れた！"
+                            )
+                            return
+
             if is_boss:
                 player_data[1:5] = [j + 1, k, l + int(coins), remaining_hp]
             else:
@@ -162,9 +224,9 @@ class Mmorpg(commands.Cog):
     async def handle_shop(self, ctx: commands.Context, show_embed: discord.Message, player_data: List[Any]):
         i, j, k, l, m, n, o, p = player_data
         description = (
-            "何を買いたいの？\n\n"
-            ":regional_indicator_s: strを1増加 (100coins)\n"
-            ":regional_indicator_m: manaを1増加 (50coins)\n"
+            "何を買いたいの？今あるコインをくれたら売ってもいいよ。\n\n"
+            ":regional_indicator_s: strを購入\n"
+            ":regional_indicator_m: manaを購入\n"
             ":regional_indicator_p: 終了"
         )
         await self.safe_edit_embed(show_embed, "SHOP", description)
@@ -182,17 +244,19 @@ class Mmorpg(commands.Cog):
 
     async def process_shop_purchase(self, ctx: commands.Context, show_embed: discord.Message, player_data: List[Any], item: str):
         i, j, k, l, m, n, o, p = player_data
-        item_cost = {"str": 100, "mana": 50}
-        if l >= item_cost[item]:
-            player_data[2 if item == "str" else 7] += 1
-            player_data[3] -= item_cost[item]
-            await self.safe_edit_embed(
-                show_embed,
-                "SHOP",
-                f"SHOPで {item} を購入しました。\n\n 現在の所持{item}: {colon_formatted_number(player_data[2 if item == str else 7])}"
-            )
-        else:
-            await self.safe_edit_embed(show_embed, "SHOP", f"コインが足りません。必要なコイン: {colon_formatted_number(item_cost[item])}")
+        player_data[2 if item == "str" else 7] += int(random.randint(0,int(player_data[3])) / random.randint(1,3))
+        player_data[3] = 0
+        await self.safe_edit_embed(
+            show_embed,
+            "PROCESSING...",
+            f"ひひひ…"
+        )
+        await asyncio.sleep(2)
+        await self.safe_edit_embed(
+            show_embed,
+            "SHOP",
+            f"SHOPで {item} を購入しました。\n\n 現在の{item}: {colon_formatted_number(player_data[2 if item == 'str' else 7])}"
+        )
 
     async def safe_edit_embed(self, message: discord.Message, title: str, description: str):
         try:
