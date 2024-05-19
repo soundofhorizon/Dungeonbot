@@ -216,8 +216,8 @@ class Mmorpg(commands.Cog):
                         escape_chance = random.random()
                         if escape_chance <= 0.2:
                             self.player_data[2] = int(k * 0.5)  # strを50%持っていく
-                            self.player_data[4] = int(m * 0.5)  # コインを50%持っていく
-                            self.player_data[5] = int(n * 0.5)  # manaを50%持っていく
+                            self.player_data[3] = int(l * 0.5)  # コインを50%持っていく
+                            self.player_data[7] = int(p * 0.5)  # manaを50%持っていく
                             nexthp = k * random.randint(50, 830)
                             next_weakboss = random.randint(0, 100)
                             if next_weakboss <= 20:
