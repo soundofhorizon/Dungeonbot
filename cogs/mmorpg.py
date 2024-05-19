@@ -249,11 +249,11 @@ class Mmorpg(commands.Cog):
                     reduction_percentage_mana = random.uniform(0.05, 0.95)
                     reduction_percentage_money = random.uniform(0.05, 0.95)
                     reduced_str = int(k * reduction_percentage_str)
-                    reduced_mana = int(l * reduction_percentage_mana)
-                    reduced_money = int(p * reduction_percentage_money)
+                    reduced_mana = int(p * reduction_percentage_mana)
+                    reduced_money = int(l * reduction_percentage_money)
                     self.player_data[2] = max(1, k - reduced_str)  # strを減らす
-                    self.player_data[7] = max(1, l - reduced_mana)  # strを減らす
-                    self.player_data[3] = max(1, p - reduced_money)  # strを減らす
+                    self.player_data[7] = max(1, p - reduced_mana)  # strを減らす
+                    self.player_data[3] = max(1, l - reduced_money)  # strを減らす
                     await self.safe_edit_embed(
                         show_embed, "(;´･ω･)", f"ラスボスはSTRを{int(reduction_percentage_str * 100)}%、MANAを{int(reduction_percentage_mana * 100)}%、お金を{int(reduction_percentage_money * 100)}%、それぞれ減らした！"
                     )
