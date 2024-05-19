@@ -48,7 +48,7 @@ class Mmorpg(commands.Cog):
                 await message.remove_reaction(reaction.emoji, self.bot.user)
 
     @commands.command()
-    async def mr(self, ctx: commands.Context):
+    async def wr(self, ctx: commands.Context):
         try:
             mmo_data = await self.bot.db_select("mmorpg")
 
@@ -224,6 +224,35 @@ class Mmorpg(commands.Cog):
                                 show_embed, "逃走！", f"メタル子分が逃げた！コインとstrを半分持っていかれた…！\n\n代わりの子分が現れた！"
                             )
                             return
+                        else:
+                            await self.safe_edit_embed(
+                                show_embed, "？", f"なにもなかった。なんなんだ？"
+                            )
+                            return
+            elif is_boss:
+                action_chance = random.random()
+                if action_chance <= 0.8:
+                    await self.safe_edit_embed(
+                        show_embed, "警戒！", f"何かしてくる…！"
+                    )
+                    await asyncio.sleep(2)
+                    reduction_percentage_str = random.uniform(0.05, 0.95)
+                    reduction_percentage_mana = random.uniform(0.05, 0.95)
+                    reduction_percentage_money = random.uniform(0.05, 0.95)
+                    reduced_str = int(k * reduction_percentage_str)
+                    reduced_mana = int(l * reduction_percentage_mana)
+                    reduced_money = int(p * reduction_percentage_money)
+                    self.player_data[2] = max(1, k - reduced_str)  # strを減らす
+                    self.player_data[4] = max(1, l - reduced_mana)  # strを減らす
+                    self.player_data[5] = max(1, p - reduced_money)  # strを減らす
+                    await self.safe_edit_embed(
+                        show_embed, "(;´･ω･)", f"ラスボスはSTRを{int(reduction_percentage_str * 100)}%、MANAを{int(reduction_percentage_mana * 100)}%、お金を{int(reduction_percentage_money * 100)}%、それぞれ減らした！"
+                    )
+                else:
+                    await self.safe_edit_embed(
+                        show_embed, "MISS", f"ラスボスの攻撃は外れた！"
+                    )
+                    return
 
     async def handle_shop(self, ctx: commands.Context, show_embed: discord.Message, player_data: List[Any]):
         i, j, k, l, m, n, o, p = player_data
