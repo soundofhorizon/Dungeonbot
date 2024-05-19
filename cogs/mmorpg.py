@@ -162,14 +162,16 @@ class Mmorpg(commands.Cog):
                     f"{enemy_name}が殲滅された！ボーナスコイン{colon_formatted_number(int(bonus))}coins獲得！\n\n"
                     "ラスボス < まだまだ…私には遠い… 子分はまだまだいるからな…"
                 )
+                if o == 3:
+                    boss_defeated_msg += f"\n\nおめでとう！{ctx.author.display_name}はメタル子分を討伐した！"
                 await ctx.send(boss_defeated_msg)
                 nexthp = k * random.randint(50, 830)
                 next_weakboss = random.randint(0, 100)
-                if next_weakboss <= 50:
+                if next_weakboss <= 20:
                     o = 0
-                elif 50 < next_weakboss <= 72:
+                elif 20 < next_weakboss <= 60:
                     o = 1
-                elif 72 < next_weakboss <= 95:
+                elif 60 < next_weakboss <= 95:
                     o = 2
                 else:
                     o = 3
@@ -183,30 +185,30 @@ class Mmorpg(commands.Cog):
                     )
                     await asyncio.sleep(2)
                     if enemy_name == "スリの銀次":
-                        player_data[4] = 0  # コインを全てもっていく
+                        player_data[3] = 0  # コインを全てもっていく
                         await self.safe_edit_embed(
                             show_embed, "(;´･ω･)", f"スリの銀次がコインを全てもっていった！"
                         )
                     elif enemy_name == "魔法使い":
-                        reduction_percentage = random.uniform(0.05, 0.15)
+                        reduction_percentage = random.uniform(0.05, 0.95)
                         reduced_str = int(k * reduction_percentage)
                         player_data[2] = max(1, k - reduced_str)  # strを減らす
                         await self.safe_edit_embed(
-                            show_embed, "(;´･ω･)", f"魔法使いがSTRを{int(reduction_percentage * 100)}%減らした！"
+                            show_embed, "(;´･ω･)", f"魔法使いがSTRを{int(reduction_percentage * 100)}%減らした！\n\n現在のSTR: {player_data[2]}"
                         )
                     elif enemy_name == "メタル子分":
                         escape_chance = random.random()
-                        if escape_chance <= 0.1:
+                        if escape_chance <= 0.2:
                             player_data[2] = int(k * 0.5)  # strを50%持っていく
                             player_data[4] = int(m * 0.5)  # コインを50%持っていく
                             player_data[5] = int(n * 0.5)  # manaを50%持っていく
                             nexthp = k * random.randint(50, 830)
                             next_weakboss = random.randint(0, 100)
-                            if next_weakboss <= 50:
+                            if next_weakboss <= 20:
                                 o = 0
-                            elif 50 < next_weakboss <= 72:
+                            elif 20 < next_weakboss <= 60:
                                 o = 1
-                            elif 72 < next_weakboss <= 95:
+                            elif 60 < next_weakboss <= 95:
                                 o = 2
                             else:
                                 o = 3
@@ -244,19 +246,30 @@ class Mmorpg(commands.Cog):
 
     async def process_shop_purchase(self, ctx: commands.Context, show_embed: discord.Message, player_data: List[Any], item: str):
         i, j, k, l, m, n, o, p = player_data
-        player_data[2 if item == "str" else 7] += int(random.randint(0,int(player_data[3])) / random.randint(1,3))
-        player_data[3] = 0
+        failed_frag = random.random()
+        if failed_frag <= 0.1:
+            player_data[3] = 0
+        else:
+            player_data[2 if item == "str" else 7] += int(random.randint(0,int(player_data[3])) / random.randint(1,3))
+            player_data[3] = 0
         await self.safe_edit_embed(
             show_embed,
             "PROCESSING...",
             f"ひひひ…"
         )
         await asyncio.sleep(2)
-        await self.safe_edit_embed(
-            show_embed,
-            "SHOP",
-            f"SHOPで {item} を購入しました。\n\n 現在の{item}: {colon_formatted_number(player_data[2 if item == 'str' else 7])}"
-        )
+        if failed_frag <= 0.1:
+            await self.safe_edit_embed(
+                show_embed,
+                "(;´･ω･)",
+                f"なんと！店員はスリの銀次だった！コインだけ持ってかれた！"
+            )
+        else:
+            await self.safe_edit_embed(
+                show_embed,
+                "SHOP",
+                f"SHOPで {item} を購入しました。\n\n 現在の{item}: {colon_formatted_number(player_data[2 if item == 'str' else 7])}"
+            )
 
     async def safe_edit_embed(self, message: discord.Message, title: str, description: str):
         try:
