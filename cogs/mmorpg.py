@@ -214,7 +214,7 @@ class Mmorpg(commands.Cog):
                         )
                     elif enemy_name == "メタル子分":
                         escape_chance = random.random()
-                        if escape_chance <= 0.2:
+                        if escape_chance <= 0.63:
                             self.player_data[2] = int(k * 0.5)  # strを50%持っていく
                             self.player_data[3] = int(l * 0.5)  # コインを50%持っていく
                             self.player_data[7] = int(p * 0.5)  # manaを50%持っていく
