@@ -48,7 +48,7 @@ class Mmorpg(commands.Cog):
                 await message.remove_reaction(reaction.emoji, self.bot.user)
 
     @commands.command()
-    async def wr(self, ctx: commands.Context):
+    async def mr(self, ctx: commands.Context):
         try:
             mmo_data = await self.bot.db_select("mmorpg")
 
@@ -129,6 +129,14 @@ class Mmorpg(commands.Cog):
         damage = k * multiplied_dmg if multiAttack_frag == 0 else int(k * random.random() * random.randint(1,2))
         coins = k * multiplied_dmg * multiplied_money if multiAttack_frag == 0 else k * multiplied_money
 
+        failed_frag = random.random()
+        if failed_frag <= 0.1:
+            await self.safe_edit_embed(
+                show_embed, "MISS!", f"攻撃が外れた！"
+            )
+            damage = 0
+            coins = 0
+
         if is_boss:
             remaining_hp = m - damage
             enemy_name = "ラスボス"
@@ -138,14 +146,15 @@ class Mmorpg(commands.Cog):
             enemy_name = ["子分", "魔法使い", "スリの銀次", "メタル子分"][o]
             hp_label = f"{enemy_name}の残りHP"
 
-        if multiAttack_frag == 0:
-            await self.safe_edit_embed(
-                show_embed, "攻撃！", f"**Critical Hit!**\n{ctx.author.display_name}の攻撃！\n{colon_formatted_number(damage)}のダメージ！\n\n{hp_label}: {colon_formatted_number(remaining_hp)}\n獲得coins: {colon_formatted_number(int(coins))}"
-            )
-        else:
-            await self.safe_edit_embed(
-                show_embed, "攻撃！", f"{ctx.author.display_name}の攻撃！\n{colon_formatted_number(damage)}のダメージ！\n\n{hp_label}: {colon_formatted_number(remaining_hp)}\n獲得coins: {colon_formatted_number(int(coins))}"
-            )
+        if failed_frag > 0.1:
+            if multiAttack_frag == 0:
+                await self.safe_edit_embed(
+                    show_embed, "攻撃！", f"**Critical Hit!**\n{ctx.author.display_name}の攻撃！\n{colon_formatted_number(damage)}のダメージ！\n\n{hp_label}: {colon_formatted_number(remaining_hp)}\n獲得coins: {colon_formatted_number(int(coins))}"
+                )
+            else:
+                await self.safe_edit_embed(
+                    show_embed, "攻撃！", f"{ctx.author.display_name}の攻撃！\n{colon_formatted_number(damage)}のダメージ！\n\n{hp_label}: {colon_formatted_number(remaining_hp)}\n獲得coins: {colon_formatted_number(int(coins))}"
+                )
 
         if is_boss:
             self.player_data[1:5] = [j + 1, k, l + int(coins), remaining_hp]
@@ -243,8 +252,8 @@ class Mmorpg(commands.Cog):
                     reduced_mana = int(l * reduction_percentage_mana)
                     reduced_money = int(p * reduction_percentage_money)
                     self.player_data[2] = max(1, k - reduced_str)  # strを減らす
-                    self.player_data[4] = max(1, l - reduced_mana)  # strを減らす
-                    self.player_data[5] = max(1, p - reduced_money)  # strを減らす
+                    self.player_data[7] = max(1, l - reduced_mana)  # strを減らす
+                    self.player_data[3] = max(1, p - reduced_money)  # strを減らす
                     await self.safe_edit_embed(
                         show_embed, "(;´･ω･)", f"ラスボスはSTRを{int(reduction_percentage_str * 100)}%、MANAを{int(reduction_percentage_mana * 100)}%、お金を{int(reduction_percentage_money * 100)}%、それぞれ減らした！"
                     )
