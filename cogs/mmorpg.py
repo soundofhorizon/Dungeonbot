@@ -47,7 +47,7 @@ class Mmorpg(commands.Cog):
                 await message.remove_reaction(reaction.emoji, self.bot.user)
 
     @commands.command()
-    async def wr(self, ctx: commands.Context):
+    async def mr(self, ctx: commands.Context):
         try:
             mmo_data = await self.bot.db_select("mmorpg")
 
