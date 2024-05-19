@@ -186,7 +186,7 @@ class Mmorpg(commands.Cog):
         else:
             if not is_boss and enemy_name != "子分":
                 action_chance = random.random()
-                if action_chance <= 0.2:
+                if action_chance <= 0.3:
                     await self.safe_edit_embed(
                         show_embed, "警戒！", f"{enemy_name}が何かしてくる…！"
                     )
