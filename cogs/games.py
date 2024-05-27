@@ -78,58 +78,56 @@ class Games(commands.Cog):
     @commands.command()
     async def keiba(self, ctx, msg):
         if is_integer(msg):
-            if 40 >= int(msg) >= 1:
+            num_horses = int(msg)
+            if 20 >= num_horses >= 1:
                 uma_emoji = ":racehorse:"
                 space = "　"
                 space_count = 36
-                # セットアップ
-                uma_spot = []
-                description = ""
-                uma_space = []
-                # 初期配置
-                description += ":checkered_flag:\n"
-                for j in range(int(msg)):
-                    description2 = ""
-                    for i in range(space_count):
-                        description2 += space
-                    description2 += f"{uma_emoji}\n"
-                    # 空白をここに数字リストで記録
-                    uma_space.append(space_count)
-                    description += description2
-                # 送信。これを編集する
-                uma = await ctx.channel.send(description)
+                uma_space = [space_count] * num_horses
+                uma_finished = [False] * num_horses
+                description = ":checkered_flag:\n"
 
-                while 0 not in uma_space:
-                    await asyncio.sleep(1.0)
-                    description4 = ":checkered_flag:\n"
-                    # これは常に先頭にあるはずだ
-                    for j in range(int(msg)):
-                        description3 = ""
+                for _ in range(num_horses):
+                    description += f"{space * space_count}{uma_emoji}\n"
+
+                uma = await ctx.channel.send(description)
+                finish_order = []
+                while len(finish_order) < num_horses - 1:
+                    await asyncio.sleep(0.3)
+                    description = ":checkered_flag:\n"
+
+                    for j in range(num_horses):
+                        if uma_finished[j]:
+                            description += f"{space * uma_space[j]}{uma_emoji}\n"
+                            continue
+
                         random_event = random.randint(1, 100)
                         if random_event <= 20:
-                            uma_space[j] += random.randint(0, 3)
+                            uma_space[j] = min(space_count, uma_space[j] + random.randint(0, 3))
                         else:
-                            uma_space[j] -= random.randint(0, 3)
+                            uma_space[j] = max(0, uma_space[j] - random.randint(0, 3))
 
-                        if uma_space[j] <= 0:
-                            uma_space[j] = 0
+                        if uma_space[j] == 0:
+                            uma_finished[j] = True
+                            finish_order.append(j + 1)
 
-                        for i in range(uma_space[j]):
-                            description3 += space
-                        description3 += f"{uma_emoji}\n"
-                        description4 += description3
-                    await uma.edit(content=description4)
+                        description += f"{space * uma_space[j]}{uma_emoji}\n"
 
-                goal = ""
-                for i in range(int(msg)):
-                    if uma_space[i] == 0:
-                        goal += f" {i + 1} "
-                await ctx.channel.send(f"{goal}番目の馬がゴールしました！")
+                    await uma.edit(content=description)
 
+                # 最後にゴールする馬の順位を決定
+                last_horse = [i + 1 for i, finished in enumerate(uma_finished) if not finished][0]
+                finish_order.append(last_horse)
+
+                finish_message = "順位:\n"
+                for rank, horse in enumerate(finish_order, 1):
+                    finish_message += f"{rank}位: {horse}番目の馬\n"
+
+                await ctx.channel.send(finish_message)
             else:
-                await ctx.channel.send("40匹より多い馬を使った競馬は出来ません。")
+                await ctx.channel.send("20匹より多い馬を使った競馬は出来ません。")
         else:
-            await ctx.channel.send("40以下の正整数で入力してください")
+            await ctx.channel.send("20以下の正整数で入力してください")
 
     @commands.command()
     async def bj(self, ctx):
