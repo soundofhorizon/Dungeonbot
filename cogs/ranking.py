@@ -53,7 +53,7 @@ class Ranking(commands.Cog):
             uuid_list = await self.bot.db_select("player_data")
             uuid_list = [[str(item[0]), int(item[1])] for item in uuid_list]
 
-            if mode.startswith(("slayer", "dungeon", "jacob", "money", "skill", "pets", "weight", "networth")):
+            if mode.startswith(("slayer", "dungeon", "jacob", "money", "skill", "pets", "weight", "networth", "choco")):
                 # 各種保存用dict
                 bank_amount_dict = {}
                 jacob_gold_dict = {}
@@ -64,13 +64,13 @@ class Ranking(commands.Cog):
                 pet_dict = {}
                 weight_dict = {}
                 networth_dict = {}
+                choco_amount_dict = {}
                 title = ""
                 skill_all_avg = 0
                 weight_all_avg = 0
                 cata_to50_percent = ""
                 for i in uuid_list:
                     uuid = i[0][1:]
-                    print(uuid)
                     frag = True
                     while frag:
                         try:
@@ -440,6 +440,22 @@ class Ranking(commands.Cog):
                                         bank_amount = 0
                             bank_amount_dict[f"{self.bot.uuid_to_mcid(uuid)}"] = bank_amount
 
+                        elif mode == "choco":  # まあ構造的に必要はないが念のため
+                            title = "クッキー製造ランキング"
+                            choco_amount = 0
+                            for j in range(len(jsonData["profiles"])):
+                                if "events" in jsonData["profiles"][j]["members"][uuid]:
+                                    if "easter" in jsonData["profiles"][j]["members"][uuid]["events"]:
+                                        if "total_chocolate" in jsonData["profiles"][j]["members"][uuid]["events"]["easter"]:
+                                            try:
+                                                if int(choco_amount) < int(jsonData["profiles"][j]["members"][uuid]["events"]["easter"]["total_chocolate"]):
+                                                    choco_amount = int(jsonData["profiles"][j]["members"][uuid]["events"]["easter"]["total_chocolate"])
+                                            except KeyError:
+                                                choco_amount = 0
+                                    else:
+                                        choco_amount = 0
+                            choco_amount_dict[f"{self.bot.uuid_to_mcid(uuid)}"] = choco_amount
+
                         elif mode == "pets":
                             if arg1 == "type":
                                 title = "LEGENDARY PET所持数ランキング"
@@ -521,6 +537,9 @@ class Ranking(commands.Cog):
                     check_dict = weight_dict
                 elif mode == "networth":
                     check_dict = networth_dict
+                elif mode == "choco":
+                    check_dict = choco_amount_dict
+                print(check_dict)
                 score_sorted = sorted(check_dict.items(), key=lambda x: x[1], reverse=True)
                 rank = 1
                 rank_stack = 0
@@ -574,6 +593,8 @@ class Ranking(commands.Cog):
                             discription += f"{rank}位: {k[0]} → {'{:,}'.format(int(k[1]))}種類\n"
                         elif mode == "weight":
                             discription += f"{rank}位: {k[0]} → {'{:,}'.format(float(k[1]))}\n"
+                        elif mode == "choco":
+                            discription += f"{rank}位: {k[0]} → {format_BMK(k[1])}個\n"
                         before_amount = float(k[1])
                         i += 1
                 if mode == "skill" and arg1 == "avg":
@@ -597,7 +618,7 @@ class Ranking(commands.Cog):
             else:
                 await show_embed.edit(
                     embed=self.bot.edit_embed(show_embed, "Error", "指定された検索単語は対象外です。検索対象は['slayer', 'dungeon', "
-                                                                   "'jacob', 'money', 'skill', 'pets', 'weight', 'networth']の8種です。"))
+                                                                   "'jacob', 'money', 'skill', 'pets', 'weight', 'networth', 'choco')]の9種です。"))
 
         except Exception as e:
             orig_error = getattr(e, "original", e)
