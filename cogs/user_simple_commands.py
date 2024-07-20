@@ -1,4 +1,5 @@
 import random
+import re
 
 import discord
 import qrcode
@@ -89,6 +90,38 @@ class SimpleCommands(commands.Cog):
     async def restart2(self, ctx):
         await ctx.send("restarting. please wait")
         await self.bot.close()
+
+    @commands.command(name='dice')
+    async def roll_dice(self, ctx, dice: str):
+        # 全角を半角に変換
+        dice = dice.translate(str.maketrans('０１２３４５６７８９ｄ＋', '0123456789d+'))
+
+        # 正規表現でダイスのパターンを解析
+        match = re.match(r'(\d+)d(\d+)(\+\d+)?', dice)
+        if not match:
+            await ctx.send('フォーマットが正しくありません。例: !dice 4d6, !dice 1d10+3')
+            return
+
+        number_of_dice = int(match.group(1))
+        dice_size = int(match.group(2))
+        modifier = int(match.group(3)[1:]) if match.group(3) else 0
+
+        if number_of_dice <= 0 or dice_size <= 0:
+            await ctx.send('ダイスの数とサイズは正の整数でなければなりません。')
+            return
+
+        rolls = [random.randint(1, dice_size) for _ in range(number_of_dice)]
+        roll_results = ' + '.join(map(str, rolls))
+        total = sum(rolls) + modifier
+
+        if modifier:
+            description = f'({roll_results}) + {modifier} ➤ {total}'
+        else:
+            description = f'{roll_results} ➤ {total}' if number_of_dice > 1 else f'{total}'
+
+        embed = discord.Embed(title="ダイスロール結果", description=description, color=0xADFF2F)
+        await ctx.send(embed=embed)
+
 
 
 def setup(bot):
