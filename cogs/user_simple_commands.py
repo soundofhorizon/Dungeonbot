@@ -130,6 +130,17 @@ class SimpleCommands(commands.Cog):
                 if mod_match:
                     mod_number_of_dice = int(mod_match.group(1))
                     mod_dice_size = int(mod_match.group(2))
+                    if mod_number_of_dice >= 500:
+                        await ctx.send("diceの数が多すぎです。500個以内に収めてください。")
+                        return
+
+                    if mod_dice_size >= 65537:
+                        await ctx.send("それはもう球ではないですか？サイコロの出目の指定は65537以下に収めてください。")
+                        return
+
+                    if mod_number_of_dice <= 0 or mod_dice_size <= 0:
+                        await ctx.send('ダイスの数とサイズは正の整数でなければなりません。')
+                        return
                     mod_rolls = [random.randint(1, mod_dice_size) for _ in range(mod_number_of_dice)]
                     mod_roll_results = ' + '.join(map(str, mod_rolls))
                     mod_total = sum(mod_rolls)
