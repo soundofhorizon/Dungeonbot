@@ -71,11 +71,6 @@ class Games(commands.Cog):
         await ctx.send(result)
 
     @commands.command()
-    async def dice(self, ctx, num):
-        result = random.randint(1, num + 1)
-        await ctx.send(result)
-
-    @commands.command()
     async def keiba(self, ctx, msg):
         if is_integer(msg):
             num_horses = int(msg)
