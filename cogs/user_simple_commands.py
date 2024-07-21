@@ -97,14 +97,14 @@ class SimpleCommands(commands.Cog):
         dice = dice.translate(str.maketrans('０１２３４５６７８９ｄ＋', '0123456789d+'))
 
         # 正規表現でダイスのパターンを解析
-        match = re.match(r'(\d+)d(\d+)(\+\d+)?', dice)
+        match = re.match(r'(\d+)d(\d+)((\+\d+d\d+)|(\+\d+))?', dice)
         if not match:
-            await ctx.send('フォーマットが正しくありません。例: !dice 4d6, !dice 1d10+3')
+            await ctx.send('フォーマットが正しくありません。例: !dice 4d6, !dice 1d10+3, !dice 1d6+2d5')
             return
 
         number_of_dice = int(match.group(1))
         dice_size = int(match.group(2))
-        modifier = int(match.group(3)[1:]) if match.group(3) else 0
+        modifier_dice = match.group(3)
 
         if number_of_dice >= 500:
             await ctx.send("diceの数が多すぎです。500個以内に収めてください。")
@@ -118,12 +118,30 @@ class SimpleCommands(commands.Cog):
             await ctx.send('ダイスの数とサイズは正の整数でなければなりません。')
             return
 
+        # メインのダイスロール
         rolls = [random.randint(1, dice_size) for _ in range(number_of_dice)]
         roll_results = ' + '.join(map(str, rolls))
-        total = sum(rolls) + modifier
+        total = sum(rolls)
 
-        if modifier:
-            description = f'({roll_results}) + {modifier} ➤ {total}'
+        # 修正値としての追加ダイスロール
+        if modifier_dice:
+            if 'd' in modifier_dice:
+                mod_match = re.match(r'\+(\d+)d(\d+)', modifier_dice)
+                if mod_match:
+                    mod_number_of_dice = int(mod_match.group(1))
+                    mod_dice_size = int(mod_match.group(2))
+                    mod_rolls = [random.randint(1, mod_dice_size) for _ in range(mod_number_of_dice)]
+                    mod_roll_results = ' + '.join(map(str, mod_rolls))
+                    mod_total = sum(mod_rolls)
+                    total += mod_total
+                    description = f'({roll_results}) + ({mod_roll_results}) ➤ {total}'
+                else:
+                    await ctx.send('フォーマットが正しくありません。例: !dice 1d6+2d5')
+                    return
+            else:
+                modifier = int(modifier_dice[1:])
+                total += modifier
+                description = f'({roll_results}) + {modifier} ➤ {total}'
         else:
             description = f'{roll_results} ➤ {total}' if number_of_dice > 1 else f'{total}'
 
