@@ -106,6 +106,14 @@ class SimpleCommands(commands.Cog):
         dice_size = int(match.group(2))
         modifier = int(match.group(3)[1:]) if match.group(3) else 0
 
+        if number_of_dice >= 500:
+            await ctx.send("diceの数が多すぎです。500個以内に収めてください。")
+            return
+
+        if dice_size >= 65537:
+            await ctx.send("それはもう球ではないですか？サイコロの出目の指定は65537以下に収めてください。")
+            return
+
         if number_of_dice <= 0 or dice_size <= 0:
             await ctx.send('ダイスの数とサイズは正の整数でなければなりません。')
             return
