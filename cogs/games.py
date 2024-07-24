@@ -474,21 +474,21 @@ class Games(commands.Cog):
             return role.id
 
         staging = [
-            "未来的な都市の中央広場。青いホログラムのビルと緑の公園。どちらに進むか、あなたの冒険が始まる。",
-            "巨大な工場の内部。青いパイプラインと緑の機械群。選択は慎重に。",
-            "美しい星空の中、浮遊する青い惑星と緑の衛星。どちらに向かうか、未知の空間が広がる。",
-            "幽霊が漂う廃病院。青く光る手術室と緑に苔むした廊下。恐怖を押しのけて進む道を選べ。",
-            "高層ビルの屋上。青いヘリポートと緑のガーデンテラス。空を見上げるか、地上を見下ろすか。",
-            "神秘的な洞窟。青いクリスタルが輝く広間と緑の苔が覆う狭間。選択の先に何が待つのか。",
-            "空中都市の街道。青い橋と緑の空中庭園。風が吹き抜ける先に未来が見える。",
-            "地獄の一角。青い炎が燃える地面と緑の毒沼。灼熱と毒、どちらを選ぶか。",
-            "サイバーパンクの街並み。青いネオンが灯るバーと緑のレーザーが交差する路地。夜の闇に挑む。",
-            "広大な砂漠。青いオアシスと緑の砂丘。乾燥地帯で水を求めるか、緑を求めるか。",
-            "海底都市。青く透き通る水族館と緑の藻に覆われたトンネル。海の神秘が待つ。",
-            "スペースステーション。青い発射台と緑のラボ。宇宙の果てへの冒険か、新たな発見か。",
-            "崩壊寸前の古代遺跡。青く光る破壊された祭壇と緑の毒に侵された階段。時間との戦い、選択を急げ。",
-            "闇に包まれたエルフの森。青い妖精の邪悪な泉と緑の呪われた樹海。最後の選択が運命を決める。"
-        ]
+    "Plunge into the depths of the futuristic city’s central plaza. Blue holograms and a green park set the stage for your adventure.",
+    "Tread carefully through the factory's inner sanctum. Blue pipelines and green machinery present your choices.",
+    "Enter the celestial expanse where a blue planet and a green satellite float in the night sky.",
+    "Stumble upon a haunted hospital with a blue-lit operating room and a moss-covered green corridor.",
+    "Climb to the skyscraper’s rooftop. Choose between the blue helipad or the green garden terrace.",
+    "Adventure through the crystal-lit cave with azure crystals and green moss-covered passages.",
+    "Provide your choice in the sky-high city streets, where a blue bridge and a green aerial garden await.",
+    "Endure the hellish landscape of blue flames and green toxic swamps. Your choice will determine your path.",
+    "Struggle through the neon-lit cyberpunk cityscape with blue neon bars and green laser alleys.",
+    "Explore the vast desert with a blue oasis and green dunes. Decide if you seek water or vegetation.",
+    "Confront the mysteries of the underwater city with an azure aquarium and green algae-covered tunnels.",
+    "Revisit the space station’s blue launch pad or explore the green lab. Cosmic or terrestrial, the choice is yours.",
+    "Enter ancient ruins on the brink of collapse. Choose between the blue-lit altar and the green-poisoned stairs.",
+    "Traverse the dark elf forest. Decide between the blue fairy’s malevolent spring and the green cursed jungle."
+]
 
         # チャンネルごとにゲームを管理
         channel_id = ctx.channel.id
