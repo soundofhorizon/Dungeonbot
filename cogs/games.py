@@ -46,6 +46,7 @@ class Games(commands.Cog):
 
     def __init__(self, bot):
         self.bot = bot
+        self.active_games = {}
 
     @commands.command()
     @dm_only()
@@ -466,6 +467,116 @@ class Games(commands.Cog):
                 await ctx.channel.send("最初からやり直してください")
         except ValueError:
             await ctx.channel.send("引数に参加人数が必要です！ Command usage:``!oe 参加人数　ex:!oe 4``")
+
+    @commands.command()
+    async def odds(self, ctx):
+        def func(role):
+            return role.id
+
+        staging = [
+            "未来的な都市の中央広場。青いホログラムのビルと緑の公園。どちらに進むか、あなたの冒険が始まる。",
+            "巨大な工場の内部。青いパイプラインと緑の機械群。選択は慎重に。",
+            "美しい星空の中、浮遊する青い惑星と緑の衛星。どちらに向かうか、未知の空間が広がる。",
+            "幽霊が漂う廃病院。青く光る手術室と緑に苔むした廊下。恐怖を押しのけて進む道を選べ。",
+            "高層ビルの屋上。青いヘリポートと緑のガーデンテラス。空を見上げるか、地上を見下ろすか。",
+            "神秘的な洞窟。青いクリスタルが輝く広間と緑の苔が覆う狭間。選択の先に何が待つのか。",
+            "空中都市の街道。青い橋と緑の空中庭園。風が吹き抜ける先に未来が見える。",
+            "地獄の一角。青い炎が燃える地面と緑の毒沼。灼熱と毒、どちらを選ぶか。",
+            "サイバーパンクの街並み。青いネオンが灯るバーと緑のレーザーが交差する路地。夜の闇に挑む。",
+            "広大な砂漠。青いオアシスと緑の砂丘。乾燥地帯で水を求めるか、緑を求めるか。",
+            "海底都市。青く透き通る水族館と緑の藻に覆われたトンネル。海の神秘が待つ。",
+            "スペースステーション。青い発射台と緑のラボ。宇宙の果てへの冒険か、新たな発見か。",
+            "崩壊寸前の古代遺跡。青く光る破壊された祭壇と緑の毒に侵された階段。時間との戦い、選択を急げ。",
+            "闇に包まれたエルフの森。青い妖精の邪悪な泉と緑の呪われた樹海。最後の選択が運命を決める。"
+        ]
+
+        # チャンネルごとにゲームを管理
+        channel_id = ctx.channel.id
+
+
+        try:
+            odd_data = await self.bot.db_select("odd")
+            uuid_list = [
+                [str(item[0]), int(item[1]), int(item[2]), str(item[3]), str(item[4])]
+                for item in odd_data
+            ]
+
+            # 既にゲームが実行中の場合
+            if channel_id in self.active_games:
+                previous_game = self.active_games[channel_id]
+                previous_game['active'] = False
+                await previous_game['message'].edit(embed=discord.Embed(description="別のゲーム開始を検知しました。再度実行してください。", color=0xff0000))
+                del self.active_games[channel_id]
+                raise Exception
+
+            # 新しいゲームを開始
+            show_embed_description = "Loading..."
+            embed = discord.Embed(description=show_embed_description, color=0x61c1a9)
+            show_embed = await ctx.send(embed=embed)
+            self.active_games[channel_id] = {'message': show_embed, 'active': True}
+
+            for player in uuid_list:
+                if player[0] == str(ctx.author.id):
+                    await show_embed.edit(embed=self.bot.edit_embed(show_embed, f"選択せよ 現在: 1/{2*(2**player[1])}　最大到達地点: 1/{2*(2**player[2])}", f"{staging[player[1]]}\n\nCorrect History\n{player[4].replace('緑','　')}\n{player[4].replace('青','　')}"))
+                    await show_embed.add_reaction("✅")  # :white_check_mark:
+                    await show_embed.add_reaction("☑️")  # :ballot_box_with_check:
+                    await show_embed.add_reaction("❌")  # :x:
+                    break
+            else:
+                player = [str(ctx.author.id), 0, 0, random.randint(0, 1), ""]  # 新しいプレイヤーの場合
+
+            def check(reaction, user):
+                if not self.active_games[channel_id]['active']:
+                    raise asyncio.CancelledError()
+                return user == ctx.author and str(reaction.emoji) in ["✅", "☑️", "❌"]
+
+            while self.active_games[channel_id]['active']:
+                reaction, user = await self.bot.wait_for("reaction_add", timeout=60.0, check=check)
+                correct_choice = "✅" if player[3] == 0 else "☑️"  # :white_check_mark: -> green, :ballot_box_with_check: -> blue
+
+                if str(reaction.emoji) == correct_choice:
+                    player[1] += 1
+                    if player[1] > player[2]:
+                        player[2] = player[1]
+                    if player[1] >= 14:
+                        await ctx.send(f"おめでとう！{ctx.author.mention}は、1/16384をクリアしました！\nRole: <@&1265699379998888027> を付与しました。")
+                        if not 1265699379998888027 in map(func, ctx.guild.get_member(ctx.author.id).roles):
+                            role = ctx.guild.get_role(1265699379998888027)
+                            await ctx.author.add_roles(role)
+                        player[2] -= 1
+                        player[1] = 0
+                        break
+                    player[4] += "緑" if player[3] == 0 else "青"
+                    player[3] = random.randint(0, 1)
+                    if len(player[4]) >= 15:
+                        player[4] = player[4][1:]
+                    await show_embed.edit(embed=self.bot.edit_embed(show_embed, f"選択せよ 現在: 1/{2*(2**player[1])}　最大到達地点: 1/{2*(2**player[2])}", f"{staging[player[1]]}\n\nCorrect History\n{player[4].replace('緑','　')}\n{player[4].replace('青','　')}"))
+                elif str(reaction.emoji) == "❌":
+                    player_data = "\n".join(" ".join(map(str, self.player_data)) for self.player_data in uuid_list)
+                    await self.bot.db_insert("odd", player_data)
+                    await show_embed.edit(embed=self.bot.edit_embed(show_embed, "ゲーム終了", "データがセーブされました。"))
+                    self.active_games[channel_id]['active'] = False
+                    break
+                else:
+                    player[1] = 0
+                    player[4] += "緑" if player[3] == 0 else "青"
+                    if len(player[4]) >= 15:
+                        player[4] = player[4][1:]
+                    player[3] = random.randint(0, 1)
+                    player_data = "\n".join(" ".join(map(str, self.player_data)) for self.player_data in uuid_list)
+                    await self.bot.db_insert("odd", player_data)
+                    await show_embed.edit(embed=self.bot.edit_embed(show_embed, f"選択せよ 現在: 1/{2*(2**player[1])}　最大到達地点: 1/{2*(2**player[2])}", f"{staging[player[1]]}\n\nCorrect History\n{player[4].replace('緑','　')}\n{player[4].replace('青','　')}"))
+
+                await show_embed.clear_reactions()
+                await show_embed.add_reaction("✅")
+                await show_embed.add_reaction("☑️")
+                await show_embed.add_reaction("❌")
+
+            player_data = "\n".join(" ".join(map(str, self.player_data)) for self.player_data in uuid_list)
+            await self.bot.db_insert("odd", player_data)
+
+        except Exception as e:
+            pass
 
 
 def setup(bot):

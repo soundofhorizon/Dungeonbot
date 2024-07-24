@@ -1,5 +1,6 @@
 import asyncio
 import datetime
+import random
 import re
 
 import discord
@@ -175,6 +176,16 @@ class AdminOnly(commands.Cog):
         for i in uuid_list:
             player_data += f"{i[1]} 0 1 0 100000000000000 150 0 0\n"
         await self.bot.db_insert("mmorpg", player_data)
+
+    @commands.command()
+    async def odds_init(self, ctx):
+        uuid_list = await self.bot.db_select("player_data")
+        uuid_list = [[str(item[0]), int(item[1])] for item in uuid_list]
+        player_data = ""
+        for i in uuid_list:
+            player_data += f"{i[1]} 0 0 {random.randint(0, 1)} |\n"
+        await self.bot.db_insert("odd", player_data)
+
 
 def setup(bot):
     bot.add_cog(AdminOnly(bot))
