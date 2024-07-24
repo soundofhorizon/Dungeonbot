@@ -556,6 +556,7 @@ class Games(commands.Cog):
                     await self.bot.db_insert("odd", player_data)
                     await show_embed.edit(embed=self.bot.edit_embed(show_embed, "ゲーム終了", "データがセーブされました。"))
                     self.active_games[channel_id]['active'] = False
+                    del self.active_games[channel_id]
                     break
                 else:
                     player[1] = 0
