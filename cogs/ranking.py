@@ -34,6 +34,8 @@ class Ranking(commands.Cog):
             catacombs_level_table_totality.append(catacombs_level_table_totality[-1]+200000000)
 
         def format_BMK(m) -> str:
+            if m >= 1000000000000:
+                m = f"{Decimal(str(float(m/1000000000000))).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)}T"
             if m >= 1000000000:
                 m = f"{Decimal(str(float(m/1000000000))).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)}B"
             elif m >= 1000000:
