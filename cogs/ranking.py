@@ -1,3 +1,4 @@
+import asyncio
 import json
 import math
 import traceback
@@ -5,6 +6,7 @@ from datetime import datetime
 from decimal import Decimal, ROUND_HALF_UP
 from typing import Optional
 
+import aiohttp
 import discord
 import requests
 from discord.ext import commands
@@ -51,7 +53,7 @@ class Ranking(commands.Cog):
             api_key = api[0][0]
 
             uuid_list = await self.bot.db_select("player_data")
-            uuid_list = [[str(item[0]), int(item[1])] for item in uuid_list]
+            uuid_list = [str(item[0][1:]) for item in uuid_list]
 
             if mode.startswith(("slayer", "dungeon", "jacob", "money", "skill", "pets", "weight", "networth", "choco")):
                 # 各種保存用dict
@@ -69,18 +71,22 @@ class Ranking(commands.Cog):
                 skill_all_avg = 0
                 weight_all_avg = 0
                 cata_to50_percent = ""
-                for i in uuid_list:
-                    uuid = i[0][1:]
-                    frag = True
-                    while frag:
+                async def fetch_data(session, uuid):
+                    while True:
                         try:
-                            response = requests.get(
-                                f'https://api.hypixel.net/skyblock/profiles?key={api_key}&uuid={uuid}', timeout=3.0)
-                            frag = False
-                        except requests.exceptions.ReadTimeout:
+                            async with session.get(f'https://api.hypixel.net/skyblock/profiles?key={api_key}&uuid={uuid}', timeout=3.0) as response:
+                                return await response.json()
+                        except asyncio.TimeoutError:
                             continue
-                    jsonData = response.json()
 
+                async with aiohttp.ClientSession() as session:
+                    tasks = [fetch_data(session, uuid) for uuid in uuid_list]
+                    responses = await asyncio.gather(*tasks, return_exceptions=True)
+
+                cnt = 0
+                for jsonData in responses:
+                    uuid = uuid_list[cnt]
+                    cnt += 1
                     if mode == "networth":
                         title = "Networth ランキング"
 
@@ -539,7 +545,6 @@ class Ranking(commands.Cog):
                     check_dict = networth_dict
                 elif mode == "choco":
                     check_dict = choco_amount_dict
-                print(check_dict)
                 score_sorted = sorted(check_dict.items(), key=lambda x: x[1], reverse=True)
                 rank = 1
                 rank_stack = 0
@@ -574,7 +579,6 @@ class Ranking(commands.Cog):
                                 decimal_part, integer_part = math.modf(float(k[1]))
                                 cata_xp_total += catacombs_level_table_totality[int(integer_part)-1]
                                 cata_xp_total += float((catacombs_level_table_totality[int(integer_part)] - catacombs_level_table_totality[int(integer_part) - 1])*decimal_part)
-                                print(cata_xp_total)
                             elif arg1 == "secret":
                                 title = "Skyblock Dungeon Secret ランキング"
                                 discription += f"{rank}位: {k[0]} → {'{:,}'.format(int(k[1]))}個\n"

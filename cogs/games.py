@@ -474,21 +474,21 @@ class Games(commands.Cog):
             return role.id
 
         staging = [
-    "Ramble through the futuristic city’s central plaza. Blue holograms and a green park set the stage for your adventure.",
-    "Ascend the massive factory's inner sanctum. Blue pipelines and green machinery present your choices.",
-    "Stroll under the celestial expanse where a blue planet and a green satellite float in the night sky.",
-    "Creep through the haunted hospital with a blue-lit operating room and a moss-covered green corridor.",
-    "Explore the skyscraper’s rooftop. Choose between the blue helipad or the green garden terrace.",
-    "Pioneer the crystal-lit cave with azure crystals and green moss-covered passages.",
-    "Examine the sky-high city streets, where a blue bridge and a green aerial garden await.",
-    "Traverse the hellish landscape of blue flames and green toxic swamps. Your choice will determine your path.",
-    "Endure the neon-lit cyberpunk cityscape with blue neon bars and green laser alleys.",
-    "Trek across the vast desert with a blue oasis and green dunes. Decide if you seek water or vegetation.",
-    "Pilot through the underwater city with an azure aquarium and green algae-covered tunnels.",
-    "Survey the space station’s blue launch pad or explore the green lab. Cosmic or terrestrial, the choice is yours.",
-    "Confront ancient ruins on the brink of collapse. Choose between the blue-lit altar and the green-poisoned stairs.",
-    "Embark into the dark elf forest. Decide between the blue fairy’s malevolent spring and the green cursed jungle."
-]
+            "Ramble through the futuristic city’s central plaza. Blue holograms and a green park set the stage for your adventure.",
+            "Ascend the massive factory's inner sanctum. Blue pipelines and green machinery present your choices.",
+            "Stroll under the celestial expanse where a blue planet and a green satellite float in the night sky.",
+            "Creep through the haunted hospital with a blue-lit operating room and a moss-covered green corridor.",
+            "Explore the skyscraper’s rooftop. Choose between the blue helipad or the green garden terrace.",
+            "Pioneer the crystal-lit cave with azure crystals and green moss-covered passages.",
+            "Examine the sky-high city streets, where a blue bridge and a green aerial garden await.",
+            "Traverse the hellish landscape of blue flames and green toxic swamps. Your choice will determine your path.",
+            "Endure the neon-lit cyberpunk cityscape with blue neon bars and green laser alleys.",
+            "Trek across the vast desert with a blue oasis and green dunes. Decide if you seek water or vegetation.",
+            "Pilot through the underwater city with an azure aquarium and green algae-covered tunnels.",
+            "Survey the space station’s blue launch pad or explore the green lab. Cosmic or terrestrial, the choice is yours.",
+            "Confront ancient ruins on the brink of collapse. Choose between the blue-lit altar and the green-poisoned stairs.",
+            "Embark into the dark elf forest. Decide between the blue fairy’s malevolent spring and the green cursed jungle."
+        ]
 
         # チャンネルごとにゲームを管理
         channel_id = ctx.channel.id
