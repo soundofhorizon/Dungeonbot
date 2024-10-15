@@ -36,7 +36,7 @@ class ROLE_CHECK(commands.Cog):
             return role.id
 
         # data fetch
-        url = f"https://api.hypixel.net/skyblock/profiles?key={api_key}&uuid={uuid}"
+        url = f"https://api.hypixel.net/v2/skyblock/profiles?key={api_key}&uuid={uuid}"
         print(url)
 
         response = requests.get(url)

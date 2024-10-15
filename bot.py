@@ -175,7 +175,7 @@ class DUNGEON_BOT(commands.Bot):
         api = await bot.db_select("api")
         api_key = api[0][0]
 
-        url = f"https://api.hypixel.net/skyblock/profiles?key={api_key}&uuid={uuid}"
+        url = f"https://api.hypixel.net/v2/skyblock/profiles?key={api_key}&uuid={uuid}"
         response = requests.get(url)
         jsonData = response.json()
 

@@ -76,7 +76,7 @@ class Ranking(commands.Cog):
                 async def fetch_data(session, uuid):
                     while True:
                         try:
-                            async with session.get(f'https://api.hypixel.net/skyblock/profiles?key={api_key}&uuid={uuid}', timeout=3.0) as response:
+                            async with session.get(f'https://api.hypixel.net/v2/skyblock/profiles?key={api_key}&uuid={uuid}', timeout=3.0) as response:
                                 return await response.json()
                         except asyncio.TimeoutError:
                             continue
@@ -91,7 +91,6 @@ class Ranking(commands.Cog):
                     cnt += 1
                     if mode == "networth":
                         title = "Networth ランキング"
-
                         for j in range(len(jsonData["profiles"])):
                             send_body = {"data": jsonData["profiles"][j]["members"][str(uuid)]}
                             # golden dragonだけ別カウントをする。
@@ -184,7 +183,7 @@ class Ranking(commands.Cog):
                         while frag:
                             try:
                                 response = requests.get(
-                                    f'https://api.hypixel.net/skyblock/profiles?key={api_key}&uuid={uuid}', timeout=3.0)
+                                    f'https://api.hypixel.net/v2/skyblock/profiles?key={api_key}&uuid={uuid}', timeout=3.0)
                                 frag = False
                             except requests.exceptions.ReadTimeout:
                                 continue

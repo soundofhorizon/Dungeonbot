@@ -26,7 +26,7 @@ class BazzerCommands(commands.Cog):
             color=0x61c1a9)
         show_embed = await ctx.send(embed=embed)
         await asyncio.sleep(0.1)
-        url = "https://api.hypixel.net/skyblock/bazaar"
+        url = "https://api.hypixel.net/v2/skyblock/bazaar"
         response = requests.get(url)
         jsonData = response.json()
 

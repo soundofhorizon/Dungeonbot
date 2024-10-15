@@ -52,7 +52,7 @@ class NetWorthCalc(commands.Cog):
             while frag:
                 try:
                     response = requests.get(
-                        f'https://api.hypixel.net/skyblock/profiles?key={api_key}&uuid={uuid}', timeout=3.0)
+                        f'https://api.hypixel.net/v2/skyblock/profiles?key={api_key}&uuid={uuid}', timeout=3.0)
                     frag = False
                 except requests.exceptions.ReadTimeout:
                     continue
