@@ -230,7 +230,7 @@ class ROLE_CHECK(commands.Cog):
             # Bestiary系
             if ("bestiary" in jsonData["profiles"][j]["members"][uuid] and "milestone" in
                     jsonData["profiles"][j]["members"][uuid]["bestiary"] and "last_claimed_milestone" in
-                    jsonData["profiles"][j]["members"][uuid]["bestiary"]["milestone"]["last_claimed_milestone"]):
+                    jsonData["profiles"][j]["members"][uuid]["bestiary"]["milestone"]):
 
                 if int(jsonData["profiles"][j]["members"][uuid]["bestiary"]["milestone"]["last_claimed_milestone"]) >= 325 \
                         and not 881394243237728377 in map(func, guild.get_member(ctx.author.id).roles):
