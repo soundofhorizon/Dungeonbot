@@ -1,9 +1,6 @@
-import json
-
 import discord
 import requests
 from discord.ext import commands
-from senitherweight import SenitherWeight
 
 
 class ROLE_CHECK(commands.Cog):
@@ -37,7 +34,6 @@ class ROLE_CHECK(commands.Cog):
 
         # data fetch
         url = f"https://api.hypixel.net/v2/skyblock/profiles?key={api_key}&uuid={uuid}"
-        print(url)
 
         response = requests.get(url)
         jsonData = response.json()
@@ -334,41 +330,6 @@ class ROLE_CHECK(commands.Cog):
                             role_ids.append(796316214657679390)
                 except KeyError:
                     pass
-
-        # Weight系
-        try:
-            senither = SenitherWeight(api_key)
-            jsonData = await senither.get_weight(uuid)
-            weight = round(float(jsonData["total"]), 2)
-            if weight >= 20000 and not 891552104844521474 in map(func, guild.get_member(ctx.author.id).roles):
-                if 1056214203544903691 in map(func, guild.get_member(ctx.author.id).roles) or 1091326995280973845 in map(func, guild.get_member(ctx.author.id).roles):
-                    pass
-                else:
-                    await guild.get_member(ctx.author.id).add_roles(
-                        discord.utils.get(guild.roles, id=891552104844521474))
-                    role_ids.append(891552104844521474)
-            elif weight >= 30000 and not 1056214203544903691 in map(func, guild.get_member(ctx.author.id).roles):
-                if 891552104844521474 in map(func, guild.get_member(ctx.author.id).roles):
-                    await guild.get_member(ctx.author.id).remove_roles(
-                        discord.utils.get(guild.roles, id=891552104844521474))
-                    remove_ids.append(891552104844521474)
-                await guild.get_member(ctx.author.id).add_roles(
-                    discord.utils.get(guild.roles, id=1056214203544903691))
-                role_ids.append(1056214203544903691)
-            elif weight >= 45000 and not 1091326995280973845 in map(func, guild.get_member(ctx.author.id).roles):
-                if 891552104844521474 in map(func, guild.get_member(ctx.author.id).roles):
-                    await guild.get_member(ctx.author.id).remove_roles(
-                        discord.utils.get(guild.roles, id=891552104844521474))
-                    remove_ids.append(891552104844521474)
-                if 1056214203544903691 in map(func, guild.get_member(ctx.author.id).roles):
-                    await guild.get_member(ctx.author.id).remove_roles(
-                        discord.utils.get(guild.roles, id=1056214203544903691))
-                    remove_ids.append(1056214203544903691)
-                await guild.get_member(ctx.author.id).add_roles(
-                    discord.utils.get(guild.roles, id=1091326995280973845))
-                role_ids.append(1091326995280973845)
-        except json.decoder.JSONDecodeError:
-            pass
 
         show_text = "ロールのチェックが完了しました。\n\n"
 
