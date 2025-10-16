@@ -22,21 +22,20 @@ class DUNGEON_BOT(commands.Bot):
         super().__init__(command_prefix=prefix, help_command=None, intents=intents)
 
     async def load_cogs(self):
-        loop = self.loop
-
-        def load_cog(cog):
+        async def load_cog(cog):
             try:
-                # 拡張子を取り除くときに余分なドットも取り除く
                 cog_name = cog[:-3].replace(".", "")
-                self.load_extension(f"cogs.{cog_name}")
+                # 同期関数 load_extension を非同期スレッドで実行
+                await asyncio.to_thread(self.load_extension, f"cogs.{cog_name}")
             except Exception:
                 traceback.print_exc()
 
-        # os.listdirは同期関数なので、loop.run_in_executorを使用して非同期的に処理
-        files = await loop.run_in_executor(None, os.listdir, "./cogs")
+        files = os.listdir("./cogs")
 
-        # 各Cogを非同期的に読み込む
-        await asyncio.gather(*[loop.run_in_executor(None, load_cog, cog) for cog in files if cog.endswith(".py")])
+        # 並列で読み込み
+        await asyncio.gather(
+            *[load_cog(cog) for cog in files if cog.endswith(".py")]
+        )
 
     async def on_ready(self):
         color = [0x126132, 0x82fc74, 0xfea283, 0x009497, 0x08fad4, 0x6ed843, 0x8005c0]
