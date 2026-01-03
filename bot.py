@@ -30,20 +30,27 @@ class DUNGEON_BOT(commands.Bot):
         await self.load_cogs()
 
     async def load_cogs(self):
-        files = os.listdir("./cogs")
+    for file in os.listdir("./cogs"):
+        # .py 以外は除外
+        if not file.endswith(".py"):
+            continue
 
-        for file in files:
-            if not file.endswith(".py"):
-                continue
+        # macOSの ._xxxx.py を除外
+        if file.startswith("._"):
+            continue
 
-            cog_name = file[:-3]
+        # __init__.py も除外
+        if file == "__init__.py":
+            continue
 
-            try:
-                await self.load_extension(f"cogs.{cog_name}")
-                print(f"[OK] Loaded cogs.{cog_name}")
-            except Exception:
-                print(f"[NG] Failed to load cogs.{cog_name}")
-                traceback.print_exc()
+        cog_name = file[:-3]
+
+        try:
+            await self.load_extension(f"cogs.{cog_name}")
+            print(f"[OK] Loaded cogs.{cog_name}")
+        except Exception:
+            print(f"[NG] Failed to load cogs.{cog_name}")
+            traceback.print_exc()
 
     async def on_ready(self):
         color = [
