@@ -316,5 +316,5 @@ class Mmorpg(commands.Cog):
         except discord.errors.NotFound:
             await self.send_embed(message.channel, title, description)
 
-def setup(bot):
-    bot.add_cog(Mmorpg(bot))
+async def setup(bot):
+    await bot.add_cog(Mmorpg(bot))
