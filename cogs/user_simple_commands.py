@@ -161,5 +161,5 @@ class SimpleCommands(commands.Cog):
 
 
 
-def setup(bot):
-    bot.add_cog(SimpleCommands(bot))
+async def setup(bot):
+    await bot.add_cog(SimpleCommands(bot))
