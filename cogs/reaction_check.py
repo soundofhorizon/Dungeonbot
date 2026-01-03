@@ -72,5 +72,5 @@ class ReactionNotifyCog(commands.Cog):
             await channel.send(notification, view=p_cmd_view)
 
 
-def setup(bot):
-    bot.add_cog(ReactionNotifyCog(bot))
+async def setup(bot):
+    await bot.add_cog(ReactionNotifyCog(bot))
