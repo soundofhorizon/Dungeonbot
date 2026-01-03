@@ -84,5 +84,5 @@ class Message(commands.Cog):
             await ch.send(embed=embed)
 
 
-def setup(bot):
-    bot.add_cog(Message(bot))
+async def setup(bot):
+    await bot.add_cog(Message(bot))
