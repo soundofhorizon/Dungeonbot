@@ -368,5 +368,5 @@ class ROLE_CHECK(commands.Cog):
             msg = await ctx.send(f"@everyone\nおめでとう！{ctx.author.display_name}は、暗号を解読し、{role.mention} を入手した！")
             await msg.pin()
 
-def setup(bot):
-    bot.add_cog(ROLE_CHECK(bot))
+async def setup(bot):
+    await bot.add_cog(ROLE_CHECK(bot))
