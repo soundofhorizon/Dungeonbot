@@ -187,5 +187,5 @@ class AdminOnly(commands.Cog):
         await self.bot.db_insert("odd", player_data)
 
 
-def setup(bot):
-    bot.add_cog(AdminOnly(bot))
+async def setup(bot):
+    await bot.add_cog(AdminOnly(bot))
