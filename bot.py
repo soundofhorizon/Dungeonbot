@@ -19,29 +19,47 @@ class DUNGEON_BOT(commands.Bot):
 
     def __init__(self, prefix):
         intents = discord.Intents.all()
-        super().__init__(command_prefix=prefix, help_command=None, intents=intents)
-
-    async def load_cogs(self):
-        async def load_cog(cog):
-            try:
-                cog_name = cog[:-3].replace(".", "")
-                # 同期関数 load_extension を非同期スレッドで実行
-                await asyncio.to_thread(self.load_extension, f"cogs.{cog_name}")
-            except Exception:
-                traceback.print_exc()
-
-        files = os.listdir("./cogs")
-
-        # 並列で読み込み
-        await asyncio.gather(
-            *[load_cog(cog) for cog in files if cog.endswith(".py")]
+        super().__init__(
+            command_prefix=prefix,
+            help_command=None,
+            intents=intents
         )
 
+    async def setup_hook(self):
+        # 起動時に1回だけ Cog をロード
+        await self.load_cogs()
+
+    async def load_cogs(self):
+        files = os.listdir("./cogs")
+
+        for file in files:
+            if not file.endswith(".py"):
+                continue
+
+            cog_name = file[:-3]
+
+            try:
+                await self.load_extension(f"cogs.{cog_name}")
+                print(f"[OK] Loaded cogs.{cog_name}")
+            except Exception:
+                print(f"[NG] Failed to load cogs.{cog_name}")
+                traceback.print_exc()
+
     async def on_ready(self):
-        color = [0x126132, 0x82fc74, 0xfea283, 0x009497, 0x08fad4, 0x6ed843, 0x8005c0]
-        await self.get_channel(818216385845919755).send(
-            embed=discord.Embed(description="起動しました", color=random.choice(color)))
-        await bot.load_cogs()
+        color = [
+            0x126132, 0x82fc74, 0xfea283,
+            0x009497, 0x08fad4, 0x6ed843, 0x8005c0
+        ]
+
+        channel = self.get_channel(818216385845919755)
+        if channel:
+            await channel.send(
+                embed=discord.Embed(
+                    description="起動しました",
+                    color=random.choice(color)
+                )
+            )
+
         print("Ready")
 
     async def change_message(self, ch_id: int, msg_id: int, **kwargs) -> discord.Message:
