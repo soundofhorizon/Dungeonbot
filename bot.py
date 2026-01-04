@@ -1,5 +1,4 @@
 # coding=utf-8
-import asyncio
 import json
 import os
 import random
@@ -271,7 +270,7 @@ class DUNGEON_BOT(commands.Bot):
                 result.append(sublist[0])
         return result
 
-    async def db_select(ctx, table_name):
+    async def db_select(self, table_name):
         message_id_dict = {"player_data":1154408467474432100,"special":1137367878316871682,"api":1153792122651148298,"mmorpg":1188454119036420197,"odd":1265682766381580350}
         message = await discord.utils.get(bot.get_guild(730269755432239116).channels, name=table_name).fetch_message(message_id_dict[table_name])
         content = message.content
@@ -280,7 +279,7 @@ class DUNGEON_BOT(commands.Bot):
             content_array[i] = content_array[i].split(" ")
         return content_array
 
-    async def db_insert(ctx, table_name, data):
+    async def db_insert(self, table_name, data):
         message_id_dict = {"player_data":1154408467474432100,"special":1137367878316871682,"api":1153792122651148298,"mmorpg":1188454119036420197,"odd":1265682766381580350}
         message = await discord.utils.get(bot.get_guild(730269755432239116).channels, name=table_name).fetch_message(message_id_dict[table_name])
         await message.edit(content=data)
@@ -301,4 +300,4 @@ class DUNGEON_BOT(commands.Bot):
 
 if __name__ == '__main__':
     bot = DUNGEON_BOT(prefix="!")
-    bot.run("ODI2MTAwOTg5MjM2NDc3OTgy.GSpnTS.5Oc66TGGTah1UwRG20ebXSGVEZ8e8qi3LcNyL4")
+    bot.run(os.getenv('DISCORD_TOKEN'))
