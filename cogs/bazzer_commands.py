@@ -1,7 +1,6 @@
 import asyncio
 
 import discord
-import requests
 from discord.ext import commands
 
 """Eventの期間を検索するコマンド"""
@@ -27,8 +26,7 @@ class BazzerCommands(commands.Cog):
         show_embed = await ctx.send(embed=embed)
         await asyncio.sleep(0.1)
         url = "https://api.hypixel.net/v2/skyblock/bazaar"
-        response = requests.get(url)
-        jsonData = response.json()
+        jsonData = self.bot.request_json_get(url, timeout=3.0)
 
         transfer_list_before = ["LOG:1", "LOG:2", "LOG:3", "LOG_2:1", "LOG_2", "INK_SACK:3", "INK_SACK:4",
                                 "RAW_FISH:3", "RAW_FISH:2", "RAW_FISH:1", "SULPHUR"]

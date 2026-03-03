@@ -3,7 +3,6 @@ from datetime import datetime
 from decimal import Decimal, ROUND_HALF_UP
 
 import discord
-import requests
 from discord.ext import commands
 
 
@@ -47,16 +46,11 @@ class NetWorthCalc(commands.Cog):
                     uuid = i[1:]
                     break
 
-            frag = True
             print(api_key, uuid)
-            while frag:
-                try:
-                    response = requests.get(
-                        f'https://api.hypixel.net/v2/skyblock/profiles?key={api_key}&uuid={uuid}', timeout=3.0)
-                    frag = False
-                except requests.exceptions.ReadTimeout:
-                    continue
-            jsonData = response.json()
+            jsonData = self.bot.request_json_get(
+                f'https://api.hypixel.net/v2/skyblock/profiles?key={api_key}&uuid={uuid}',
+                timeout=3.0
+            )
 
             profile_option = []
             description = ""
@@ -89,15 +83,11 @@ class NetWorthCalc(commands.Cog):
                         lv100_golden_drag += 1
                     else:
                         golden_drag_count += 1
-            frag = True
-            while frag:
-                try:
-                    response = requests.post(
-                        f'https://skyblock.acebot.xyz/api/networth/categories', json=send_body, timeout=10.0)
-                    frag = False
-                except requests.exceptions.ReadTimeout:
-                    continue
-            resp = response.json()
+            resp = self.bot.request_json_post(
+                f'https://skyblock.acebot.xyz/api/networth/categories',
+                payload=send_body,
+                timeout=10.0
+            )
 
             description = ""
             networth_total = 0

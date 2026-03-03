@@ -1,5 +1,4 @@
 import discord
-import requests
 from discord.ext import commands
 
 
@@ -35,8 +34,7 @@ class ROLE_CHECK(commands.Cog):
         # data fetch
         url = f"https://api.hypixel.net/v2/skyblock/profiles?key={api_key}&uuid={uuid}"
 
-        response = requests.get(url)
-        jsonData = response.json()
+        jsonData = self.bot.request_json_get(url, timeout=3.0)
 
         # skills
         skills = ['farming', 'combat', 'mining', 'foraging', 'fishing',

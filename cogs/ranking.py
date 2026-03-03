@@ -8,9 +8,14 @@ from typing import Optional
 
 import aiohttp
 import discord
-import requests
 from discord.ext import commands
 from senitherweight import SenitherWeight
+from .ranking_helpers import (
+    build_catacombs_level_table,
+    count_golden_dragons,
+    escape_rank_name,
+    format_bmk,
+)
 
 """各種ランキング"""
 
@@ -22,27 +27,7 @@ class Ranking(commands.Cog):
 
     @commands.command()
     async def ranking(self, ctx, mode: str, arg1: Optional[str]):
-        catacombs_level_table_totality = [50, 125, 235, 395, 625, 955, 1425, 2095, 3045, 4385, 6275, 8940,
-                                          12700, 17960, 25340, 35640, 50040, 70040, 97640, 135640, 188140,
-                                          259640, 356640, 488640, 668640, 911640, 1239640, 1684640, 2284640,
-                                          3084640, 4149640, 5559640, 7459640, 9959640, 13259640, 17559640,
-                                          23159640, 30359640, 39559640, 51559640, 66559640, 85559640, 109559640,
-                                          139559640, 177559640, 225559640, 285559640, 360559640, 453559640,
-                                          569809640]
-
-        for i in range(70):
-            catacombs_level_table_totality.append(catacombs_level_table_totality[-1]+200000000)
-
-        def format_BMK(m) -> str:
-            if m >= 1000000000000:
-                m = f"{Decimal(str(float(m/1000000000000))).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)}T"
-            if m >= 1000000000:
-                m = f"{Decimal(str(float(m/1000000000))).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)}B"
-            elif m >= 1000000:
-                m = f"{Decimal(str(float(m/1000000))).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)}M"
-            elif m >= 1000:
-                m = f"{Decimal(str(float(m/1000))).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)}K"
-            return m
+        catacombs_level_table_totality = build_catacombs_level_table()
 
         try:
             show_embed_description = "Fetching... \nPlease wait..."
@@ -92,31 +77,14 @@ class Ranking(commands.Cog):
                     if mode == "networth":
                         title = "Networth ランキング"
                         for j in range(len(jsonData["profiles"])):
-                            send_body = {"data": jsonData["profiles"][j]["members"][str(uuid)]}
-                            # golden dragonだけ別カウントをする。
-                            golden_drag_count = 0
-                            lv200_golden_drag = 0
-                            lv100_golden_drag = 0
-                            try:
-                                for j in jsonData["profiles"][j]["members"][str(uuid)]["pets"]:
-                                    if j["type"] == "GOLDEN_DRAGON":
-                                        if j["exp"] >= 210255385:
-                                            lv200_golden_drag += 1
-                                        elif j["exp"] >= 25353230:
-                                            lv100_golden_drag += 1
-                                        else:
-                                            golden_drag_count += 1
-                            except KeyError:
-                                continue
-                            frag = True
-                            while frag:
-                                try:
-                                    response = requests.post(
-                                        f'https://skyblock.acebot.xyz/api/networth/categories', json=send_body, timeout=10.0)
-                                    frag = False
-                                except requests.exceptions.ReadTimeout:
-                                    continue
-                            resp = response.json()
+                            member_data = jsonData["profiles"][j]["members"][str(uuid)]
+                            send_body = {"data": member_data}
+                            golden_drag_count, lv200_golden_drag, lv100_golden_drag = count_golden_dragons(member_data)
+                            resp = self.bot.request_json_post(
+                                f'https://skyblock.acebot.xyz/api/networth/categories',
+                                payload=send_body,
+                                timeout=10.0
+                            )
                             networth_total = 0
                             try:
                                 for i in resp["data"]["categories"]:
@@ -159,16 +127,10 @@ class Ranking(commands.Cog):
                         except json.decoder.JSONDecodeError:
                             continue
                     elif mode == "dungeon" and arg1 == "secret":
-                        frag = True
-                        while frag:
-                            try:
-                                response = requests.get(
-                                    f'https://sky.shiiyu.moe/api/v2/dungeons/{self.bot.uuid_to_mcid(uuid)}',
-                                    timeout=5.0)
-                                frag = False
-                            except requests.exceptions.ReadTimeout:
-                                continue
-                        jsonData = response.json()
+                        jsonData = self.bot.request_json_get(
+                            f'https://sky.shiiyu.moe/api/v2/dungeons/{self.bot.uuid_to_mcid(uuid)}',
+                            timeout=5.0
+                        )
                         rounds = 0
                         for j in jsonData["profiles"]:
                             if "secrets_found" in jsonData["profiles"][j]["dungeons"]:
@@ -179,15 +141,10 @@ class Ranking(commands.Cog):
                                     continue
                         dungeon_round_dict[self.bot.uuid_to_mcid(uuid)] = rounds
                     else:
-                        frag = True
-                        while frag:
-                            try:
-                                response = requests.get(
-                                    f'https://api.hypixel.net/v2/skyblock/profiles?key={api_key}&uuid={uuid}', timeout=3.0)
-                                frag = False
-                            except requests.exceptions.ReadTimeout:
-                                continue
-                        jsonData = response.json()
+                        jsonData = self.bot.request_json_get(
+                            f'https://api.hypixel.net/v2/skyblock/profiles?key={api_key}&uuid={uuid}',
+                            timeout=3.0
+                        )
                         # データを取得
                         if mode == "slayer":
                             try:
@@ -561,7 +518,7 @@ class Ranking(commands.Cog):
                         else:
                             rank_stack += 1
                         mcid = k[0]
-                        k[0] = k[0].replace("_", "\_")
+                        k[0] = escape_rank_name(k[0])
                         if mode == "jacob":
                             if arg1 == "gold":
                                 discription += f"{rank}位: {k[0]} → {'{:,}'.format(int(k[1]))}個\n"
@@ -570,7 +527,7 @@ class Ranking(commands.Cog):
                         elif mode == "money":
                             discription += f"{rank}位: {k[0]} → {'{:,}'.format(int(k[1]))}coin\n"
                         elif mode == "networth":
-                            discription += f"{rank}位: {k[0]} → {format_BMK(int(k[1]))}\n"
+                            discription += f"{rank}位: {k[0]} → {format_bmk(int(k[1]))}\n"
                         elif mode == "dungeon":
                             if arg1 == "cata":
                                 discription += f"{rank}位: {k[0]} → {'{:,}'.format(float(k[1]))}\n"
@@ -599,7 +556,7 @@ class Ranking(commands.Cog):
                         elif mode == "weight":
                             discription += f"{rank}位: {k[0]} → {'{:,}'.format(float(k[1]))}\n"
                         elif mode == "choco":
-                            discription += f"{rank}位: {k[0]} → {format_BMK(k[1])}個\n"
+                            discription += f"{rank}位: {k[0]} → {format_bmk(k[1])}個\n"
                         before_amount = float(k[1])
                         i += 1
                 if mode == "skill" and arg1 == "avg":

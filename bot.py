@@ -193,14 +193,35 @@ class DUNGEON_BOT(commands.Bot):
         embed.title = title
         return embed
 
+    @staticmethod
+    def request_json_get(url: str, timeout: float = 3.0, retry_on_timeout: bool = True):
+        while True:
+            try:
+                response = requests.get(url, timeout=timeout)
+                return response.json()
+            except requests.exceptions.ReadTimeout:
+                if retry_on_timeout:
+                    continue
+                raise
+
+    @staticmethod
+    def request_json_post(url: str, payload, timeout: float = 3.0, retry_on_timeout: bool = True):
+        while True:
+            try:
+                response = requests.post(url, json=payload, timeout=timeout)
+                return response.json()
+            except requests.exceptions.ReadTimeout:
+                if retry_on_timeout:
+                    continue
+                raise
+
     async def check_catacombs_level(ctx, uuid):
 
         api = await bot.db_select("api")
         api_key = api[0][0]
 
         url = f"https://api.hypixel.net/v2/skyblock/profiles?key={api_key}&uuid={uuid}"
-        response = requests.get(url)
-        jsonData = response.json()
+        jsonData = bot.request_json_get(url, timeout=3.0)
 
         if jsonData.get("success"):
             catacombs_exp = 0
